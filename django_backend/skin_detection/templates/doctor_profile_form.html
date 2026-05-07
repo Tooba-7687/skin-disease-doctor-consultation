@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Complete Your Professional Profile - DermAI{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-success text-white p-4">
+                    <h3 class="mb-0"><i class="fas fa-user-md me-2"></i>Complete Your Professional Profile</h3>
+                    <p class="mb-0 small mt-2">Please provide your professional information to complete your doctor profile</p>
+                </div>
+
+                <div class="card-body p-5">
+                    <div class="alert alert-warning" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Profile completion is required first.</strong> After completing your profile, your account will need admin verification before you can access patient cases and other features.
+                    </div>
+
+                    {% if messages %}
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="POST" novalidate>
+                        {% csrf_token %}
+
+                        <!-- Professional Information Section -->
+                        <h5 class="mb-4 pb-3 border-bottom">
+                            <i class="fas fa-briefcase me-2 text-success"></i>
+                            Professional Information
+                        </h5>
+
+                        <div class="mb-3">
+                            <label for="id_medical_license_number" class="form-label">Medical License Number <span class="text-danger">*</span></label>
+                            {{ form.medical_license_number }}
+                            <small class="d-block text-muted mt-1">e.g., MD123456</small>
+                            {% if form.medical_license_number.errors %}
+                                <div class="alert alert-danger small mt-2">{{ form.medical_license_number.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_specialization" class="form-label">Specialization <span class="text-danger">*</span></label>
+                            {{ form.specialization }}
+                            <small class="d-block text-muted mt-1">e.g., Cardiology, Dermatology, Neurology</small>
+                            {% if form.specialization.errors %}
+                                <div class="alert alert-danger small mt-2">{{ form.specialization.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_years_of_experience" class="form-label">Years of Experience <span class="text-danger">*</span></label>
+                            {{ form.years_of_experience }}
+                            <small class="d-block text-muted mt-1">e.g., 10</small>
+                            {% if form.years_of_experience.errors %}
+                                <div class="alert alert-danger small mt-2">{{ form.years_of_experience.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Contact & Location Section -->
+                        <h5 class="mb-4 pb-3 border-bottom mt-5">
+                            <i class="fas fa-map-marker-alt me-2 text-success"></i>
+                            Contact & Location
+                        </h5>
+
+                        <div class="mb-3">
+                            <label for="id_office_address" class="form-label">Office Address</label>
+                            {{ form.office_address }}
+                            <small class="d-block text-muted mt-1">123 Medical Center Dr, Suite 100</small>
+                            {% if form.office_address.errors %}
+                                <div class="alert alert-danger small mt-2">{{ form.office_address.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_office_phone" class="form-label">Office Phone</label>
+                            {{ form.office_phone }}
+                            <small class="d-block text-muted mt-1">+1 (555) 123-4567</small>
+                            {% if form.office_phone.errors %}
+                                <div class="alert alert-danger small mt-2">{{ form.office_phone.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Biography Section -->
+                        <h5 class="mb-4 pb-3 border-bottom mt-5">
+                            <i class="fas fa-pen-fancy me-2 text-success"></i>
+                            Professional Biography
+                        </h5>
+
+                        <div class="mb-4">
+                            <label for="id_bio" class="form-label">Professional Biography</label>
+                            {{ form.bio }}
+                            <small class="d-block text-muted mt-1">Brief description of your experience, expertise, and approach to patient care</small>
+                            {% if form.bio.errors %}
+                                <div class="alert alert-danger small mt-2">{{ form.bio.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Education Notice -->
+                        <div class="alert alert-info mt-5" role="alert">
+                            <i class="fas fa-graduation-cap me-2"></i>
+                            <strong>Education Required:</strong> You need to add at least one degree (MBBS, BS, MD, PhD, etc.) to complete your profile.
+                        </div>
+
+                        <div class="d-flex gap-2 mt-5">
+                            <button type="submit" class="btn btn-success btn-lg flex-grow-1">
+                                <i class="fas fa-save me-2"></i>
+                                Save Professional Information
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Add Education/Certifications Section -->
+                    {% if doctor_profile.id %}
+                    <hr class="my-5">
+
+                    <h5 class="mb-4">
+                        <i class="fas fa-book me-2 text-primary"></i>
+                        Educational Background
+                    </h5>
+
+                    <!-- Existing Education -->
+                    {% if doctor_profile.education.all %}
+                        <div class="mb-4">
+                            {% for edu in doctor_profile.education.all %}
+                            <div class="card mb-2 border-left-success" style="border-left: 4px solid #28a745;">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="mb-1"><strong>{{ edu.degree }}</strong> from {{ edu.school_name }}</h6>
+                                            <p class="mb-0 text-muted small">Graduated: {{ edu.graduation_year }}</p>
+                                        </div>
+                                        <span class="badge bg-success">✓</span>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <a href="{% url 'doctor_add_education' %}" class="btn btn-outline-primary btn-sm me-2">
+                        <i class="fas fa-plus me-1"></i>Add Education
+                    </a>
+
+                    <!-- Certifications -->
+                    <h5 class="mb-4 mt-5">
+                        <i class="fas fa-certificate me-2 text-warning"></i>
+                        Certifications & Specializations
+                    </h5>
+
+                    {% if doctor_profile.certifications.all %}
+                        <div class="mb-4">
+                            {% for cert in doctor_profile.certifications.all %}
+                            <div class="card mb-2 border-left-warning" style="border-left: 4px solid #ffc107;">
+                                <div class="card-body">
+                                    <h6 class="mb-1"><strong>{{ cert.certification_name }}</strong></h6>
+                                    <p class="mb-0 text-muted small">{{ cert.issuing_organization }} • {{ cert.issue_date }}</p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <a href="{% url 'doctor_add_certification' %}" class="btn btn-outline-warning btn-sm me-2">
+                        <i class="fas fa-plus me-1"></i>Add Certification
+                    </a>
+
+                    <!-- Work Experience -->
+                    <h5 class="mb-4 mt-5">
+                        <i class="fas fa-hospital me-2 text-info"></i>
+                        Work Experience
+                    </h5>
+
+                    {% if doctor_profile.work_experience.all %}
+                        <div class="mb-4">
+                            {% for exp in doctor_profile.work_experience.all %}
+                            <div class="card mb-2 border-left-info" style="border-left: 4px solid #17a2b8;">
+                                <div class="card-body">
+                                    <h6 class="mb-1"><strong>{{ exp.position }}</strong></h6>
+                                    <p class="mb-2 text-muted small">{{ exp.hospital_name }} • {{ exp.department }}</p>
+                                    <p class="mb-0 text-muted small">{{ exp.start_date }} {% if exp.end_date %} - {{ exp.end_date }} {% else %} - Present {% endif %}</p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <a href="{% url 'doctor_add_work_experience' %}" class="btn btn-outline-info btn-sm">
+                        <i class="fas fa-plus me-1"></i>Add Work Experience
+                    </a>
+
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .border-left-success { border-left: 4px solid #28a745 !important; }
+    .border-left-warning { border-left: 4px solid #ffc107 !important; }
+    .border-left-info { border-left: 4px solid #17a2b8 !important; }
+</style>
+{% endblock %}

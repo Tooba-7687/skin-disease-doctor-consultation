@@ -1,0 +1,477 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load profile_filters %}
+
+{% block title %}DermAI — Skin Disease Detection System{% endblock %}
+
+{% block content %}
+
+<!-- ========== HERO SECTION ========== -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-7">
+                <h1 class="hero-title">
+                    AI-Powered Skin Disease Detection
+                </h1>
+                <p class="hero-subtitle">
+                    Upload a skin image and get instant AI analysis.
+                    Early detection saves lives. Our system detects
+                    7 types of skin conditions with high accuracy.
+                </p>
+                <div class="d-flex gap-3 flex-wrap">
+                    {% if request.user.is_authenticated %}
+                        <!-- Logged In User -->
+                        {% if request.user|is_patient %}
+                        <a href="{% url 'upload' %}"
+                           class="btn btn-light btn-lg px-5">
+                            <i class="fas fa-upload me-2"></i>
+                            Upload Image
+                        </a>
+                        {% if has_active_consultation %}
+                        <a href="{% url 'consultation_detail' first_active_consultation.id %}"
+                           class="btn btn-outline-light btn-lg px-5">
+                            <i class="fas fa-comments me-2"></i>
+                            View My Consultation
+                        </a>
+                        {% else %}
+                        <a href="{% url 'browse_doctors' %}"
+                           class="btn btn-outline-light btn-lg px-5">
+                            <i class="fas fa-user-md me-2"></i>
+                            Find a Doctor
+                        </a>
+                        {% endif %}
+                        {% elif request.user|is_doctor %}
+                        <a href="{% url 'doctor_dashboard' %}"
+                           class="btn btn-light btn-lg px-5">
+                            <i class="fas fa-stethoscope me-2"></i>
+                            Doctor Dashboard
+                        </a>
+                        <a href="{% url 'consultation_list' %}"
+                           class="btn btn-outline-light btn-lg px-5">
+                            <i class="fas fa-comments me-2"></i>
+                            My Consultations
+                        </a>
+                        {% endif %}
+                        <a href="{% url 'logout' %}"
+                           class="btn btn-outline-light btn-lg px-5">
+                            <i class="fas fa-sign-out-alt me-2"></i>
+                            Logout
+                        </a>
+                    {% else %}
+                        <!-- Not Logged In - Show Role Selection -->
+                        <a href="{% url 'patient_signup' %}"
+                           class="btn btn-light btn-lg px-5">
+                            <i class="fas fa-user me-2"></i>
+                            Patient Sign Up
+                        </a>
+                        <a href="{% url 'doctor_signup' %}"
+                           class="btn btn-outline-light btn-lg px-5">
+                            <i class="fas fa-user-md me-2"></i>
+                            Doctor Sign Up
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-lg-5 text-center mt-5 mt-lg-0">
+                <i class="fas fa-microscope"
+                   style="font-size:12rem;
+                          opacity:0.3;
+                          color:white;"></i>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ========== STATS SECTION ========== -->
+<section class="py-5"
+         style="background: var(--primary-light);">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-3 col-6 mb-4">
+                <div class="stat-card card">
+                    <div class="stat-number">7</div>
+                    <div class="stat-label">Disease Classes</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-4">
+                <div class="stat-card card">
+                    <div class="stat-number">10K+</div>
+                    <div class="stat-label">Training Images</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-4">
+                <div class="stat-card card">
+                    <div class="stat-number">85%</div>
+                    <div class="stat-label">Model Accuracy</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-4">
+                <div class="stat-card card">
+                    <div class="stat-number">&lt;5s</div>
+                    <div class="stat-label">Detection Time</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ========== HOW IT WORKS ========== -->
+<section class="py-5" id="how-it-works">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title">How It Works</h2>
+            <div class="section-divider mx-auto"></div>
+            <p class="section-subtitle">
+                Simple process for Patients and Doctors
+            </p>
+        </div>
+        
+        <!-- Patient Journey -->
+        <div class="row mb-5">
+            <div class="col-12 mb-4">
+                <h4 class="text-center text-primary">👥 Patient Journey</h4>
+            </div>
+            <div class="col-md-3 col-6 mb-4 text-center">
+                <div class="card p-4 h-100">
+                    <div class="mb-3">
+                        <span class="badge bg-primary rounded-circle p-3 fs-5">1</span>
+                    </div>
+                    <i class="fas fa-user-plus fs-2 text-primary mb-3"></i>
+                    <h5>Create Account</h5>
+                    <p class="text-muted small">Sign up as a patient for free</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-4 text-center">
+                <div class="card p-4 h-100">
+                    <div class="mb-3">
+                        <span class="badge bg-primary rounded-circle p-3 fs-5">2</span>
+                    </div>
+                    <i class="fas fa-upload fs-2 text-primary mb-3"></i>
+                    <h5>Upload Image</h5>
+                    <p class="text-muted small">Upload your skin image</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-4 text-center">
+                <div class="card p-4 h-100">
+                    <div class="mb-3">
+                        <span class="badge bg-primary rounded-circle p-3 fs-5">3</span>
+                    </div>
+                    <i class="fas fa-robot fs-2 text-primary mb-3"></i>
+                    <h5>Get AI Analysis</h5>
+                    <p class="text-muted small">Instant disease detection</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-4 text-center">
+                <div class="card p-4 h-100">
+                    <div class="mb-3">
+                        <span class="badge bg-primary rounded-circle p-3 fs-5">4</span>
+                    </div>
+                    <i class="fas fa-user-md fs-2 text-primary mb-3"></i>
+                    <h5>Consult Doctor</h5>
+                    <p class="text-muted small">Talk to verified doctors</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Doctor Journey -->
+        <div class="row">
+            <div class="col-12 mb-4">
+                <h4 class="text-center text-success">👨‍⚕️ Doctor Journey</h4>
+            </div>
+            <div class="col-md-3 col-6 mb-4 text-center">
+                <div class="card p-4 h-100">
+                    <div class="mb-3">
+                        <span class="badge bg-success rounded-circle p-3 fs-5">1</span>
+                    </div>
+                    <i class="fas fa-user-md fs-2 text-success mb-3"></i>
+                    <h5>Sign Up</h5>
+                    <p class="text-muted small">Register as a doctor</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-4 text-center">
+                <div class="card p-4 h-100">
+                    <div class="mb-3">
+                        <span class="badge bg-success rounded-circle p-3 fs-5">2</span>
+                    </div>
+                    <i class="fas fa-file-contract fs-2 text-success mb-3"></i>
+                    <h5>Complete Profile</h5>
+                    <p class="text-muted small">Add credentials & experience</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-4 text-center">
+                <div class="card p-4 h-100">
+                    <div class="mb-3">
+                        <span class="badge bg-success rounded-circle p-3 fs-5">3</span>
+                    </div>
+                    <i class="fas fa-check-circle fs-2 text-success mb-3"></i>
+                    <h5>Get Verified</h5>
+                    <p class="text-muted small">Admin verification</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-4 text-center">
+                <div class="card p-4 h-100">
+                    <div class="mb-3">
+                        <span class="badge bg-success rounded-circle p-3 fs-5">4</span>
+                    </div>
+                    <i class="fas fa-prescription-bottle fs-2 text-success mb-3"></i>
+                    <h5>Prescribe</h5>
+                    <p class="text-muted small">Issue prescriptions</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ========== SKIN DISEASES ========== -->
+<section class="py-5"
+         style="background: var(--bg-color);">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title">
+                Detectable Skin Conditions
+            </h2>
+            <div class="section-divider mx-auto"></div>
+            <p class="section-subtitle">
+                Our AI can detect these 7 skin conditions
+            </p>
+        </div>
+        <div class="row">
+
+            <!-- Actinic Keratosis -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card disease-card h-100">
+                    <div class="disease-icon">
+                        <i class="fas fa-sun"></i>
+                    </div>
+                    <h5>Actinic Keratosis</h5>
+                    <p class="text-muted small">
+                        A rough, scaly patch caused by years of
+                        sun exposure. Early treatment is important.
+                    </p>
+                    <span class="badge bg-warning text-dark">
+                        Moderate Risk
+                    </span>
+                </div>
+            </div>
+
+            <!-- Basal Cell Carcinoma -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card disease-card h-100">
+                    <div class="disease-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h5>Basal Cell Carcinoma</h5>
+                    <p class="text-muted small">
+                        A type of skin cancer that begins in basal
+                        cells. Requires immediate medical attention.
+                    </p>
+                    <span class="badge bg-danger">High Risk</span>
+                </div>
+            </div>
+
+            <!-- Benign Keratosis -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card disease-card h-100">
+                    <div class="disease-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h5>Benign Keratosis</h5>
+                    <p class="text-muted small">
+                        A non-cancerous skin growth that appears
+                        waxy. Usually harmless but monitor for changes.
+                    </p>
+                    <span class="badge bg-success">Low Risk</span>
+                </div>
+            </div>
+
+            <!-- Dermatofibroma -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card disease-card h-100">
+                    <div class="disease-icon">
+                        <i class="fas fa-circle"></i>
+                    </div>
+                    <h5>Dermatofibroma</h5>
+                    <p class="text-muted small">
+                        A common benign fibrous nodule found on skin.
+                        Usually harmless and requires no treatment.
+                    </p>
+                    <span class="badge bg-success">Low Risk</span>
+                </div>
+            </div>
+
+            <!-- Melanoma -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card disease-card h-100"
+                     style="border-left-color: #dc3545;">
+                    <div class="disease-icon">
+                        <i class="fas fa-skull-crossbones"
+                           style="color: #dc3545;"></i>
+                    </div>
+                    <h5>Melanoma</h5>
+                    <p class="text-muted small">
+                        The most serious type of skin cancer.
+                        Immediate medical attention is required!
+                    </p>
+                    <span class="badge bg-danger">Very High Risk</span>
+                </div>
+            </div>
+
+            <!-- Melanocytic Nevi -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card disease-card h-100">
+                    <div class="disease-icon">
+                        <i class="fas fa-dot-circle"></i>
+                    </div>
+                    <h5>Melanocytic Nevi</h5>
+                    <p class="text-muted small">
+                        Common moles that are usually harmless.
+                        Monitor for changes in size or color.
+                    </p>
+                    <span class="badge bg-success">Low Risk</span>
+                </div>
+            </div>
+
+            <!-- Vascular Lesions -->
+            <div class="col-lg-4 col-md-6 mb-4 mx-auto">
+                <div class="card disease-card h-100">
+                    <div class="disease-icon">
+                        <i class="fas fa-tint"></i>
+                    </div>
+                    <h5>Vascular Lesions</h5>
+                    <p class="text-muted small">
+                        Abnormalities of blood vessels in the skin.
+                        Consult a dermatologist for treatment options.
+                    </p>
+                    <span class="badge bg-warning text-dark">
+                        Moderate Risk
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ========== SKIN CARE TIPS ========== -->
+<section class="py-5"
+         style="background: var(--primary-light);">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title">Skin Care Tips</h2>
+            <div class="section-divider mx-auto"></div>
+            <p class="section-subtitle">
+                Follow these tips for healthy skin
+            </p>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card tip-card h-100 p-4">
+                    <div class="tip-icon text-primary">
+                        <i class="fas fa-sun"></i>
+                    </div>
+                    <h5>Sun Protection</h5>
+                    <p class="text-muted small">
+                        Always wear SPF 30+ sunscreen when going
+                        outdoors. Reapply every 2 hours for
+                        maximum protection.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card tip-card h-100 p-4">
+                    <div class="tip-icon text-primary">
+                        <i class="fas fa-tint"></i>
+                    </div>
+                    <h5>Stay Hydrated</h5>
+                    <p class="text-muted small">
+                        Drink at least 8 glasses of water daily.
+                        Hydration keeps skin healthy and glowing.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card tip-card h-100 p-4">
+                    <div class="tip-icon text-primary">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h5>Regular Check-ups</h5>
+                    <p class="text-muted small">
+                        Examine your skin monthly for new or
+                        changing moles. Visit a dermatologist
+                        annually for skin check.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card tip-card h-100 p-4">
+                    <div class="tip-icon text-primary">
+                        <i class="fas fa-apple-alt"></i>
+                    </div>
+                    <h5>Healthy Diet</h5>
+                    <p class="text-muted small">
+                        Eat foods rich in antioxidants like fruits
+                        and vegetables. Avoid processed foods that
+                        can cause inflammation.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card tip-card h-100 p-4">
+                    <div class="tip-icon text-primary">
+                        <i class="fas fa-bed"></i>
+                    </div>
+                    <h5>Get Enough Sleep</h5>
+                    <p class="text-muted small">
+                        Sleep 7-8 hours daily for skin repair.
+                        Your skin regenerates while you sleep.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card tip-card h-100 p-4">
+                    <div class="tip-icon text-primary">
+                        <i class="fas fa-smoking-ban"></i>
+                    </div>
+                    <h5>Avoid Smoking</h5>
+                    <p class="text-muted small">
+                        Smoking accelerates skin aging and increases
+                        risk of skin cancer. Quit for healthier skin.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ========== CTA SECTION ========== -->
+<section class="py-5 text-center"
+         style="background: linear-gradient(135deg, #1a73e8, #1a2b4a);">
+    <div class="container">
+        <h2 class="text-white fw-bold mb-3">
+            Ready to Check Your Skin?
+        </h2>
+        <p class="text-white opacity-75 mb-4">
+            Upload your skin image now and get instant AI analysis
+        </p>
+        {% if request.user.is_authenticated %}
+        <a href="{% url 'upload' %}"
+           class="btn btn-light btn-lg px-5">
+            <i class="fas fa-upload me-2"></i>
+            Upload Image Now
+        </a>
+        {% else %}
+        <a href="{% url 'login' %}"
+           class="btn btn-light btn-lg px-5">
+            <i class="fas fa-sign-in-alt me-2"></i>
+            Login to Get Started
+        </a>
+        <a href="{% url 'signup' %}"
+           class="btn btn-outline-light btn-lg px-4 ms-3">
+            <i class="fas fa-user-plus me-2"></i>
+            Sign Up Free
+        </a>
+        {% endif %}
+    </div>
+</section>
+
+{% endblock %}

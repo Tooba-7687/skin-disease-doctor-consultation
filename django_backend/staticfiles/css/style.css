@@ -1,0 +1,548 @@
+/* ========================================
+   ROOT VARIABLES - LIGHT THEME
+======================================== */
+:root {
+    --primary       : #1a73e8;
+    --primary-dark  : #1557b0;
+    --primary-light : #e8f0fe;
+    --secondary     : #ffffff;
+    --bg-color      : #f8f9fa;
+    --card-bg       : #ffffff;
+    --text-color    : #2c3e50;
+    --text-muted    : #6c757d;
+    --border-color  : #dee2e6;
+    --shadow        : 0 4px 20px rgba(0,0,0,0.08);
+    --shadow-hover  : 0 8px 30px rgba(0,0,0,0.15);
+    --navbar-bg     : #1a73e8;
+    --footer-bg     : #1a2b4a;
+    --footer-text   : #ffffff;
+    --success       : #28a745;
+    --warning       : #ffc107;
+    --danger        : #dc3545;
+    --transition    : all 0.3s ease;
+}
+
+/* ========================================
+   ROOT VARIABLES - DARK THEME
+======================================== */
+[data-theme="dark"] {
+    --primary       : #4a9eff;
+    --primary-dark  : #1a73e8;
+    --primary-light : #1a2b4a;
+    --secondary     : #1e1e2e;
+    --bg-color      : #121212;
+    --card-bg       : #1e1e2e;
+    --text-color    : #e0e0e0;
+    --text-muted    : #a0a0a0;
+    --border-color  : #333355;
+    --shadow        : 0 4px 20px rgba(0,0,0,0.3);
+    --shadow-hover  : 0 8px 30px rgba(0,0,0,0.5);
+    --navbar-bg     : #1a2b4a;
+    --footer-bg     : #0a0a1a;
+    --footer-text   : #e0e0e0;
+}
+
+/* ========================================
+   DARK MODE TEXT FIXES
+======================================= */
+[data-theme="dark"] body {
+    background-color : var(--bg-color);
+    color            : var(--text-color);
+}
+
+[data-theme="dark"] .card {
+    background-color : var(--card-bg) !important;
+    color            : var(--text-color) !important;
+    border-color     : var(--border-color) !important;
+}
+
+[data-theme="dark"] .card h1,
+[data-theme="dark"] .card h2,
+[data-theme="dark"] .card h3,
+[data-theme="dark"] .card h4,
+[data-theme="dark"] .card h5,
+[data-theme="dark"] .card h6,
+[data-theme="dark"] .card p,
+[data-theme="dark"] .card span,
+[data-theme="dark"] .card li {
+    color : var(--text-color) !important;
+}
+
+[data-theme="dark"] .text-muted {
+    color : var(--text-muted) !important;
+}
+
+[data-theme="dark"] .text-dark,
+[data-theme="dark"] .text-black {
+    color : var(--text-color) !important;
+}
+
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4,
+[data-theme="dark"] h5,
+[data-theme="dark"] h6,
+[data-theme="dark"] p,
+[data-theme="dark"] span,
+[data-theme="dark"] li {
+    color : var(--text-color);
+}
+
+[data-theme="dark"] .btn-light {
+    color            : var(--text-color) !important;
+    background-color : var(--card-bg) !important;
+    border-color     : var(--border-color) !important;
+}
+
+[data-theme="dark"] .btn-light:hover,
+[data-theme="dark"] .btn-light:focus {
+    background-color : rgba(255,255,255,0.08) !important;
+}
+
+[data-theme="dark"] .btn-outline-light {
+    color         : var(--text-color) !important;
+    border-color  : rgba(255,255,255,0.35) !important;
+    background    : transparent !important;
+}
+
+[data-theme="dark"] .btn-outline-light:hover,
+[data-theme="dark"] .btn-outline-light:focus {
+    background-color : rgba(255,255,255,0.08) !important;
+}
+
+/* ========================================
+   GLOBAL STYLES
+======================================== */
+* {
+    margin     : 0;
+    padding    : 0;
+    box-sizing : border-box;
+}
+
+body {
+    font-family      : 'Poppins', sans-serif;
+    background-color : var(--bg-color);
+    color            : var(--text-color);
+    transition       : var(--transition);
+    min-height       : 100vh;
+    display          : flex;
+    flex-direction   : column;
+}
+
+/* ========================================
+   NAVBAR
+======================================== */
+.navbar {
+    background-color : var(--navbar-bg) !important;
+    box-shadow       : 0 2px 15px rgba(0,0,0,0.2);
+    padding          : 12px 0;
+    transition       : var(--transition);
+}
+
+.navbar-brand {
+    color       : #ffffff !important;
+    font-size   : 1.5rem;
+    font-weight : 700;
+    letter-spacing: 1px;
+}
+
+.navbar-brand i {
+    color : #ffffff;
+}
+
+.nav-link {
+    color       : rgba(255,255,255,0.85) !important;
+    font-weight : 500;
+    padding     : 8px 15px !important;
+    border-radius: 8px;
+    transition  : var(--transition);
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color            : #ffffff !important;
+    background-color : rgba(255,255,255,0.15);
+}
+
+/* Dark Mode Toggle Button */
+.theme-toggle {
+    background-color : rgba(255,255,255,0.15);
+    border           : none;
+    border-radius    : 50%;
+    width            : 40px;
+    height           : 40px;
+    color            : #ffffff;
+    font-size        : 1rem;
+    transition       : var(--transition);
+    display          : flex;
+    align-items      : center;
+    justify-content  : center;
+}
+
+.theme-toggle:hover {
+    background-color : rgba(255,255,255,0.3);
+    transform        : rotate(20deg);
+}
+
+/* ========================================
+   CARDS
+======================================== */
+.card {
+    background-color : var(--card-bg);
+    border           : 1px solid var(--border-color);
+    border-radius    : 15px;
+    box-shadow       : var(--shadow);
+    transition       : var(--transition);
+}
+
+.card:hover {
+    box-shadow : var(--shadow-hover);
+    transform  : translateY(-3px);
+}
+
+/* ========================================
+   BUTTONS
+======================================== */
+.btn-primary {
+    background-color : var(--primary);
+    border-color     : var(--primary);
+    border-radius    : 10px;
+    padding          : 10px 25px;
+    font-weight      : 600;
+    transition       : var(--transition);
+}
+
+.btn-primary:hover {
+    background-color : var(--primary-dark);
+    border-color     : var(--primary-dark);
+    transform        : translateY(-2px);
+    box-shadow       : 0 5px 15px rgba(26,115,232,0.4);
+}
+
+.btn-outline-primary {
+    border-color  : var(--primary);
+    color         : var(--primary);
+    border-radius : 10px;
+    padding       : 10px 25px;
+    font-weight   : 600;
+    transition    : var(--transition);
+}
+
+.btn-outline-primary:hover {
+    background-color : var(--primary);
+    transform        : translateY(-2px);
+}
+
+/* ========================================
+   HERO SECTION
+======================================== */
+.hero-section {
+    background    : linear-gradient(135deg, #1a73e8 0%, #1a2b4a 100%);
+    color         : #ffffff;
+    padding       : 100px 0;
+    position      : relative;
+    overflow      : hidden;
+}
+
+.hero-section::before {
+    content    : '';
+    position   : absolute;
+    top        : -50%;
+    right      : -50%;
+    width      : 100%;
+    height     : 100%;
+    background : rgba(255,255,255,0.05);
+    border-radius: 50%;
+}
+
+.hero-title {
+    font-size   : 3rem;
+    font-weight : 700;
+    line-height : 1.2;
+}
+
+.hero-subtitle {
+    font-size   : 1.2rem;
+    opacity     : 0.9;
+    margin      : 20px 0 30px;
+}
+
+/* ========================================
+   SECTION STYLES
+======================================== */
+.section-title {
+    font-size   : 2rem;
+    font-weight : 700;
+    color       : var(--text-color);
+    margin-bottom: 10px;
+}
+
+.section-subtitle {
+    color        : var(--text-muted);
+    margin-bottom: 40px;
+}
+
+.section-divider {
+    width            : 60px;
+    height           : 4px;
+    background-color : var(--primary);
+    border-radius    : 2px;
+    margin           : 10px auto 20px;
+}
+
+/* ========================================
+   DISEASE CARDS
+======================================== */
+.disease-card {
+    border-radius : 15px;
+    padding       : 25px;
+    height        : 100%;
+    transition    : var(--transition);
+    border-left   : 4px solid var(--primary);
+}
+
+.disease-card:hover {
+    border-left-color : var(--primary-dark);
+}
+
+.disease-icon {
+    font-size        : 2.5rem;
+    color            : var(--primary);
+    margin-bottom    : 15px;
+}
+
+/* ========================================
+   UPLOAD AREA
+======================================== */
+.upload-area {
+    border        : 3px dashed var(--primary);
+    border-radius : 20px;
+    padding       : 60px 40px;
+    text-align    : center;
+    cursor        : pointer;
+    transition    : var(--transition);
+    background    : var(--primary-light);
+}
+
+.upload-area:hover {
+    background    : rgba(26,115,232,0.1);
+    border-color  : var(--primary-dark);
+    transform     : scale(1.01);
+}
+
+.upload-area.dragover {
+    background   : rgba(26,115,232,0.2);
+    border-color : var(--primary-dark);
+}
+
+.upload-icon {
+    font-size    : 4rem;
+    color        : var(--primary);
+    margin-bottom: 20px;
+}
+
+/* ========================================
+   RESULT PAGE
+======================================== */
+.result-card {
+    border-radius : 20px;
+    overflow      : hidden;
+}
+
+.confidence-bar {
+    height        : 12px;
+    border-radius : 6px;
+    background    : var(--border-color);
+    overflow      : hidden;
+}
+
+.confidence-fill {
+    height           : 100%;
+    border-radius    : 6px;
+    background       : linear-gradient(90deg, var(--primary), var(--primary-dark));
+    transition       : width 1s ease;
+}
+
+.severity-badge {
+    font-size     : 0.9rem;
+    padding       : 8px 20px;
+    border-radius : 20px;
+    font-weight   : 600;
+}
+
+/* ========================================
+   HISTORY TABLE
+======================================== */
+.history-table {
+    background    : var(--card-bg);
+    border-radius : 15px;
+    overflow      : hidden;
+    box-shadow    : var(--shadow);
+}
+
+.history-table th {
+    background-color : var(--primary);
+    color            : #ffffff;
+    font-weight      : 600;
+    padding          : 15px;
+}
+
+.history-table td {
+    padding          : 12px 15px;
+    vertical-align   : middle;
+    color            : var(--text-color);
+    border-color     : var(--border-color);
+}
+
+.history-table tr:hover td {
+    background-color : var(--primary-light);
+}
+
+/* ========================================
+   FOOTER
+======================================== */
+.footer {
+    background-color : var(--footer-bg);
+    color            : var(--footer-text);
+    padding          : 50px 0 0;
+    margin-top       : auto;
+}
+
+.footer h5 {
+    color         : #ffffff;
+    font-weight   : 600;
+    margin-bottom : 20px;
+}
+
+.footer p {
+    color   : rgba(255,255,255,0.7);
+    font-size: 0.9rem;
+}
+
+.footer a {
+    color          : rgba(255,255,255,0.7);
+    text-decoration: none;
+    transition     : var(--transition);
+    display        : block;
+    margin-bottom  : 8px;
+}
+
+.footer a:hover {
+    color       : #ffffff;
+    padding-left: 5px;
+}
+
+.footer hr {
+    border-color : rgba(255,255,255,0.1);
+}
+
+/* ========================================
+   LOADING ANIMATION
+======================================== */
+.loading-spinner {
+    width         : 60px;
+    height        : 60px;
+    border        : 5px solid var(--primary-light);
+    border-top    : 5px solid var(--primary);
+    border-radius : 50%;
+    animation     : spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0%   { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ========================================
+   TIPS SECTION
+======================================== */
+.tip-card {
+    border-radius : 15px;
+    padding       : 20px;
+    height        : 100%;
+    transition    : var(--transition);
+}
+
+.tip-icon {
+    font-size    : 2rem;
+    margin-bottom: 15px;
+}
+
+/* ========================================
+   IMAGE PREVIEW
+======================================== */
+.image-preview {
+    max-width     : 100%;
+    max-height    : 300px;
+    border-radius : 15px;
+    object-fit    : cover;
+    box-shadow    : var(--shadow);
+}
+
+.gradcam-image {
+    max-width     : 100%;
+    border-radius : 15px;
+    box-shadow    : var(--shadow);
+}
+
+/* ========================================
+   STATS SECTION
+======================================== */
+.stat-card {
+    text-align    : center;
+    padding       : 30px 20px;
+    border-radius : 15px;
+}
+
+.stat-number {
+    font-size   : 2.5rem;
+    font-weight : 700;
+    color       : var(--primary);
+}
+
+.stat-label {
+    color     : var(--text-muted);
+    font-size : 0.9rem;
+}
+
+/* ========================================
+   RESPONSIVE
+======================================== */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size : 2rem;
+    }
+
+    .hero-section {
+        padding : 60px 0;
+    }
+
+    .upload-area {
+        padding : 40px 20px;
+    }
+
+    .section-title {
+        font-size : 1.5rem;
+    }
+}
+
+/* ========================================
+   SCROLLBAR
+======================================== */
+::-webkit-scrollbar {
+    width : 8px;
+}
+
+::-webkit-scrollbar-track {
+    background : var(--bg-color);
+}
+
+::-webkit-scrollbar-thumb {
+    background    : var(--primary);
+    border-radius : 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background : var(--primary-dark);
+}

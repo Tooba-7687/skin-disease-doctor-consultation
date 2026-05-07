@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Profile Status - DermAI{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white p-4">
+                    <h3 class="mb-0"><i class="fas fa-check-circle me-2"></i>Profile Verification Status</h3>
+                </div>
+
+                <div class="card-body p-5">
+                    {% if doctor_profile.is_admin_verified %}
+                        <!-- Approved Status -->
+                        <div class="alert alert-success alert-lg" role="alert">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-check-circle fa-3x me-4 text-success"></i>
+                                <div>
+                                    <h5 class="mb-1">✓ Profile Approved!</h5>
+                                    <p class="mb-0">Your profile has been verified by admin. You can now start accepting patient consultations and issuing prescriptions.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <h5>What You Can Do Now:</h5>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    View pending consultation requests from patients
+                                </li>
+                                <li class="list-group-item">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Accept or reject patient consultations
+                                </li>
+                                <li class="list-group-item">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Chat with patients
+                                </li>
+                                <li class="list-group-item">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Create and issue prescriptions
+                                </li>
+                                <li class="list-group-item">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    View patient reviews and ratings
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="mt-4">
+                            <a href="{% url 'doctor_dashboard' %}" class="btn btn-success btn-lg">
+                                <i class="fas fa-arrow-right me-2"></i>Go to Doctor Dashboard
+                            </a>
+                        </div>
+
+                    {% elif doctor_profile.profile_status == 'pending_approval' %}
+                        <!-- Pending Status -->
+                        <div class="alert alert-warning alert-lg" role="alert">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-hourglass-half fa-3x me-4 text-warning"></i>
+                                <div>
+                                    <h5 class="mb-1">⏳ Pending Admin Verification</h5>
+                                    <p class="mb-0">Your profile is currently being reviewed by our admin team. This usually takes 24-48 hours. We'll notify you once your profile is verified.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <h5>Your Profile Information:</h5>
+                            <div class="card">
+                                <div class="card-body">
+                                    <p><strong>Medical License:</strong> {{ doctor_profile.medical_license_number }}</p>
+                                    <p><strong>Specialization:</strong> {{ doctor_profile.specialization }}</p>
+                                    <p><strong>Years of Experience:</strong> {{ doctor_profile.years_of_experience }}</p>
+                                    <p><strong>Education Entries:</strong> {{ doctor_profile.education.count }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>While waiting:</strong> You can update your profile, add more credentials, and prepare for patient interactions.
+                        </div>
+
+                        <div class="mt-4">
+                            <a href="{% url 'doctor_complete_profile' %}" class="btn btn-outline-primary">
+                                <i class="fas fa-edit me-2"></i>Edit Profile
+                            </a>
+                        </div>
+
+                    {% else %}
+                        <!-- Incomplete/Rejected Status -->
+                        <div class="alert alert-danger alert-lg" role="alert">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-exclamation-circle fa-3x me-4 text-danger"></i>
+                                <div>
+                                    <h5 class="mb-1">❌ Profile Incomplete or Rejected</h5>
+                                    <p class="mb-0">Your profile needs attention. Please complete all required fields and resubmit for verification.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <a href="{% url 'doctor_complete_profile' %}" class="btn btn-danger btn-lg">
+                                <i class="fas fa-edit me-2"></i>Complete Your Profile
+                            </a>
+                        </div>
+                    {% endif %}
+
+                    <div class="mt-5 pt-4 border-top">
+                        <h5>Need Help?</h5>
+                        <p class="text-muted">
+                            If you have questions about the verification process, please contact our support team.
+                        </p>
+                        <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-home me-2"></i>Back to Home
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

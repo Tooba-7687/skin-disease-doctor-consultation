@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Result — DermAI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Poppins', sans-serif;
+        }
+        .navbar {
+            background-color: #1a73e8 !important;
+        }
+        .hero-header {
+            background: linear-gradient(135deg, #1a73e8, #1a2b4a);
+            padding: 30px 0;
+            color: white;
+        }
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+        .image-preview {
+            max-width: 100%;
+            border-radius: 15px;
+            object-fit: cover;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        footer {
+            background-color: #1a2b4a;
+            color: rgba(255,255,255,0.7);
+            padding: 20px 0;
+            margin-top: auto;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="/" style="color: white !important;">
+            <i class="fas fa-microscope me-2"></i>DermAI
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/" style="color: white !important;">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/upload/" style="color: white !important;">Upload</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/history/" style="color: white !important;">History</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/signout/" style="color: white !important;">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- HEADER -->
+<section class="hero-header">
+    <div class="container text-center">
+        <h1 class="fw-bold">Detection Result</h1>
+        <p class="opacity-75 mt-2">AI Analysis Complete</p>
+    </div>
+</section>
+
+<!-- RESULT CONTENT -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <!-- Left Column Images -->
+            <div class="col-lg-5 mb-4">
+                <!-- Original Image -->
+                <div class="card p-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-image text-primary me-2"></i>
+                        Uploaded Image
+                    </h5>
+                    {% if prediction.image %}
+                        <img src="{{ prediction.image.url }}" class="image-preview w-100" alt="Uploaded Skin Image">
+                    {% else %}
+                        <p class="text-muted">No image available</p>
+                    {% endif %}
+                </div>
+
+                <!-- Grad-CAM -->
+                {% if prediction.gradcam_image %}
+                <div class="card p-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-eye text-primary me-2"></i>
+                        AI Visualization (Grad-CAM)
+                    </h5>
+                    <img src="{{ prediction.gradcam_image.url }}" class="image-preview w-100" alt="Grad-CAM">
+                    <p class="text-muted mt-2" style="font-size: 0.9rem;">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Highlighted areas show regions AI focused on
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Right Column Results -->
+            <div class="col-lg-7">
+                <!-- Disease Name -->
+                <div class="card p-4">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="text-muted mb-1">Detected Condition</h6>
+                            <h2 class="fw-bold text-primary">{{ prediction.disease_name }}</h2>
+                        </div>
+                        <span class="badge bg-{{ severity_color }} p-2">
+                            <i class="fas fa-shield-alt me-1"></i>
+                            {{ prediction.severity }} Risk
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Confidence -->
+                <div class="card p-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-percentage text-primary me-2"></i>
+                        Confidence Score
+                    </h5>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="fw-bold">{{ prediction.disease_name }}</span>
+                        <span class="fw-bold text-primary">{{ prediction.confidence }}%</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" style="width: {{ prediction.confidence }}%"></div>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="card p-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-info-circle text-primary me-2"></i>
+                        About This Condition
+                    </h5>
+                    <p>{{ prediction.description }}</p>
+                </div>
+
+                <!-- Care Suggestions -->
+                <div class="card p-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-heartbeat text-success me-2"></i>
+                        Care Suggestions
+                    </h5>
+                    <p>{{ prediction.care_suggestion }}</p>
+                </div>
+
+                <!-- Disclaimer -->
+                <div class="alert alert-warning" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Disclaimer:</strong>
+                    This is not a medical diagnosis. Please consult a qualified dermatologist for proper treatment.
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="row g-2">
+                    <div class="col-md-4">
+                        <a href="/upload/" class="btn btn-primary w-100">
+                            <i class="fas fa-upload me-2"></i>New Analysis
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="/download/{{ prediction.id }}/" class="btn btn-success w-100">
+                            <i class="fas fa-download me-2"></i>Download
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="/history/" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-history me-2"></i>History
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <p class="mb-0">© 2024 DermAI — Developed by Tooba Nadeem | Session 2022-2026</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

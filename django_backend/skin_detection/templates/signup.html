@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Sign Up — DermAI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-header {
+        background : linear-gradient(135deg, #1a73e8, #1a2b4a);
+        padding    : 30px 0;
+        color      : white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- HEADER -->
+<section class="hero-header">
+    <div class="container text-center">
+        <h1 class="fw-bold" style="font-size:1.8rem;">
+            <i class="fas fa-user-plus me-3"></i>Sign Up
+        </h1>
+        <p class="opacity-75 mt-2" style="font-size:0.9rem;">
+            Create your free DermAI account
+        </p>
+    </div>
+</section>
+
+<!-- SIGNUP FORM -->
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-5 col-md-7">
+                <div class="card p-4 p-md-5">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-microscope fa-3x
+                                  text-primary mb-3"></i>
+                        <h3 class="fw-bold"
+                            style="font-size:1.3rem;">
+                            Create Account!
+                        </h3>
+                        <p class="text-muted"
+                           style="font-size:0.85rem;">
+                            Join DermAI for free skin disease detection
+                        </p>
+                    </div>
+
+                    <form method="POST" action="/signup/">
+                        {% csrf_token %}
+
+                        <!-- Username -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-user me-2
+                                          text-primary"></i>
+                                Username
+                            </label>
+                            <input type="text"
+                                   name="username"
+                                   class="form-control"
+                                   placeholder="Enter username"
+                                   required>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-envelope me-2
+                                          text-primary"></i>
+                                Email
+                            </label>
+                            <input type="email"
+                                   name="email"
+                                   class="form-control"
+                                   placeholder="Enter email"
+                                   required>
+                        </div>
+
+                        <!-- Password -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-lock me-2
+                                          text-primary"></i>
+                                Password
+                            </label>
+                            <input type="password"
+                                   name="password1"
+                                   class="form-control"
+                                   placeholder="Enter password"
+                                   required>
+                        </div>
+
+                        <!-- Confirm Password -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-lock me-2
+                                          text-primary"></i>
+                                Confirm Password
+                            </label>
+                            <input type="password"
+                                   name="password2"
+                                   class="form-control"
+                                   placeholder="Confirm password"
+                                   required>
+                        </div>
+
+                        <!-- Submit -->
+                        <div class="d-grid mb-3">
+                            <button type="submit"
+                                    class="btn btn-primary">
+                                <i class="fas fa-user-plus me-2"></i>
+                                Create Account
+                            </button>
+                        </div>
+
+                        <!-- Login Link -->
+                        <div class="text-center">
+                            <p class="text-muted mb-0"
+                               style="font-size:0.82rem;">
+                                Already have an account?
+                                <a href="/signin/"
+                                   class="text-primary fw-bold">
+                                    Login Here
+                                </a>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

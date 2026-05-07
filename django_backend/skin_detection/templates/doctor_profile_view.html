@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dr. {{ doctor_profile.user.first_name }} {{ doctor_profile.user.last_name }} - DermAI{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-lg mb-4">
+                <div class="card-body p-5">
+                    <div class="d-flex justify-content-between align-items-start mb-4">
+                        <div>
+                            <h1 class="mb-1">Dr. {{ doctor_profile.user.first_name }} {{ doctor_profile.user.last_name }}</h1>
+                            <h5 class="text-success mb-3">{{ doctor_profile.specialization }}</h5>
+                        </div>
+                        {% if avg_rating %}
+                        <div class="text-end">
+                            <span class="badge bg-warning text-dark fs-6">⭐ {{ avg_rating|floatformat:1 }}</span>
+                            <small class="d-block mt-2">{{ reviews.count }} reviews</small>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Key Information -->
+                    <div class="row mb-4">
+                        <div class="col-md-3 mb-3">
+                            <h6 class="text-muted">Experience</h6>
+                            <h4>{{ doctor_profile.years_of_experience }} <small>years</small></h4>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <h6 class="text-muted">License</h6>
+                            <p class="text-monospace">{{ doctor_profile.medical_license_number }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-muted">Status</h6>
+                            <p>
+                                {% if doctor_profile.is_admin_verified %}
+                                <span class="badge bg-success">✓ Verified Doctor</span>
+                                {% else %}
+                                <span class="badge bg-warning">Verification Pending</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Biography -->
+                    {% if doctor_profile.bio %}
+                    <div class="mb-4">
+                        <h5>Professional Biography</h5>
+                        <p class="text-muted">{{ doctor_profile.bio }}</p>
+                    </div>
+                    {% endif %}
+
+                    <!-- Contact Information -->
+                    <div class="mb-4 pb-4 border-bottom">
+                        <h5>Contact Information</h5>
+                        {% if doctor_profile.office_address %}
+                        <p class="mb-2">
+                            <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                            <strong>Office Address:</strong><br>
+                            {{ doctor_profile.office_address }}
+                        </p>
+                        {% endif %}
+                        {% if doctor_profile.office_phone %}
+                        <p class="mb-2">
+                            <i class="fas fa-phone text-primary me-2"></i>
+                            <strong>Phone:</strong> {{ doctor_profile.office_phone }}
+                        </p>
+                        {% endif %}
+                        <p>
+                            <i class="fas fa-envelope text-info me-2"></i>
+                            <strong>Email:</strong> {{ doctor_profile.user.email }}
+                        </p>
+                    </div>
+
+                    <!-- Education -->
+                    {% if doctor_profile.education.all %}
+                    <div class="mb-4">
+                        <h5><i class="fas fa-graduation-cap me-2"></i>Education</h5>
+                        {% for edu in doctor_profile.education.all %}
+                        <div class="card card-body mb-2">
+                            <p class="mb-1"><strong>{{ edu.degree }}</strong></p>
+                            <p class="mb-1 text-muted">{{ edu.school_name }}</p>
+                            <p class="mb-0 text-muted small">Graduated: {{ edu.graduation_year }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Certifications -->
+                    {% if doctor_profile.certifications.all %}
+                    <div class="mb-4">
+                        <h5><i class="fas fa-certificate me-2"></i>Certifications</h5>
+                        {% for cert in doctor_profile.certifications.all %}
+                        <div class="card card-body mb-2">
+                            <p class="mb-1"><strong>{{ cert.certification_name }}</strong></p>
+                            <p class="mb-0 text-muted small">{{ cert.issuing_organization }} • Issued: {{ cert.issue_date }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Work Experience -->
+                    {% if doctor_profile.work_experience.all %}
+                    <div class="mb-4">
+                        <h5><i class="fas fa-hospital me-2"></i>Work Experience</h5>
+                        {% for exp in doctor_profile.work_experience.all %}
+                        <div class="card card-body mb-2">
+                            <p class="mb-1"><strong>{{ exp.position }}</strong></p>
+                            <p class="mb-1 text-muted">{{ exp.hospital_name }} • {{ exp.department }}</p>
+                            <p class="mb-0 text-muted small">
+                                {{ exp.start_date }} - {% if exp.end_date %}{{ exp.end_date }}{% else %}Present{% endif %}
+                            </p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Sidebar - Consultation & Reviews -->
+        <div class="col-lg-4">
+            <!-- Consultation CTA -->
+            <div class="card shadow-lg mb-4">
+                <div class="card-body text-center">
+                    <h5 class="mb-3">Interested in a Consultation?</h5>
+                    <p class="text-muted small mb-3">
+                        Discuss your skin condition with Dr. {{ doctor_profile.user.first_name }}
+                    </p>
+                    {% if request.user.is_authenticated %}
+                        {% if has_consultation %}
+                        <!-- Already has consultation - show View button -->
+                        <a href="{% url 'consultation_detail' active_consultation.id %}" class="btn btn-info btn-lg w-100">
+                            <i class="fas fa-comments me-2"></i>View Consultation
+                        </a>
+                        <small class="d-block mt-2 text-success">
+                            <i class="fas fa-check-circle me-1"></i>You have an active consultation
+                        </small>
+                        {% else %}
+                        <!-- No consultation yet - show Request button -->
+                        <a href="{% url 'quick_request_consultation' doctor_profile.user.id %}" class="btn btn-success btn-lg w-100">
+                            <i class="fas fa-comments me-2"></i>Request Consultation
+                        </a>
+                        {% endif %}
+                    {% else %}
+                    <a href="{% url 'patient_login' %}" class="btn btn-success btn-lg w-100">
+                        <i class="fas fa-sign-in-alt me-2"></i>Login to Request
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Reviews -->
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-star me-2"></i>Patient Reviews</h5>
+                </div>
+                <div class="card-body">
+                    {% if reviews %}
+                        {% for review in reviews %}
+                        <div class="mb-3 pb-3 border-bottom">
+                            <div class="d-flex justify-content-between mb-1">
+                                <strong>{{ review.patient.username }}</strong>
+                                <span>
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= review.rating %}<i class="fas fa-star text-warning"></i>{% else %}<i class="fas fa-star text-muted"></i>{% endif %}
+                                    {% endfor %}
+                                </span>
+                            </div>
+                            {% if review.review_text %}
+                            <p class="text-muted small mb-0">{{ review.review_text }}</p>
+                            {% endif %}
+                            <small class="text-muted">{{ review.created_at|date:"M d, Y" }}</small>
+                        </div>
+                        {% endfor %}
+
+                        {% if request.user.is_authenticated %}
+                        <a href="{% url 'add_doctor_review' doctor_profile.id %}" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-pen me-2"></i>Add Review
+                        </a>
+                        {% endif %}
+                    {% else %}
+                        <p class="text-muted text-center mb-3">No reviews yet. Be the first to review!</p>
+                        {% if request.user.is_authenticated %}
+                        <a href="{% url 'add_doctor_review' doctor_profile.id %}" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-pen me-2"></i>Write First Review
+                        </a>
+                        {% else %}
+                        <a href="{% url 'patient_login' %}" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login to Review
+                        </a>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
