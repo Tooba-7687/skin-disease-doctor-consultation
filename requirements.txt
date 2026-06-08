@@ -4,6 +4,8 @@ django-cors-headers==4.3.1
 Pillow==10.2.0
 numpy==1.26.4
 scikit-learn==1.5.0
+tensorflow-cpu==2.15.0
+opencv-python==4.8.1.78
 psycopg2-binary==2.9.9
 gunicorn==21.2.0
 whitenoise==6.7.0
