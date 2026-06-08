@@ -1,21 +1,27 @@
 import numpy as np
-import tensorflow as tf
-from tensorflow.keras.models import load_model, Model
-from tensorflow.keras.preprocessing import image
-from tensorflow.keras.applications.efficientnet import preprocess_input
+# import tensorflow as tf
+# from tensorflow.keras.models import load_model, Model
+# from tensorflow.keras.preprocessing import image
+# from tensorflow.keras.applications.efficientnet import preprocess_input
 from django.conf import settings
 from PIL import Image
 import cv2
 import os
+import warnings
 
-# GPU Optimization
-gpus = tf.config.list_physical_devices('GPU')
-if gpus:
-    try:
-        for gpu in gpus:
-            tf.config.experimental.set_memory_growth(gpu, True)
-    except RuntimeError as e:
-        print(f"GPU memory growth error: {e}")
+# TensorFlow GPU Optimization - skip if not installed
+try:
+    import tensorflow as tf
+    gpus = tf.config.list_physical_devices('GPU')
+    if gpus:
+        try:
+            for gpu in gpus:
+                tf.config.experimental.set_memory_growth(gpu, True)
+        except RuntimeError as e:
+            print(f"GPU memory growth error: {e}")
+except ImportError:
+    warnings.warn("TensorFlow not installed. Model inference will not be available.")
+    tf = None
 
 # Global model variable - persistent cache
 _model = None
@@ -24,6 +30,10 @@ _grad_model = None
 def get_model():
     global _model
     if _model is None:
+        if tf is None:
+            warnings.warn("TensorFlow not available. Model loading skipped.")
+            return None
+            
         print("Loading ML model...")
         
         # Dynamic check for model file - handles Git LFS restoration
@@ -47,6 +57,7 @@ def get_model():
             raise FileNotFoundError(f"Model file not found: {model_path}")
         
         print(f"📦 Loading from: {model_path}")
+        from tensorflow.keras.models import load_model
         _model = load_model(model_path)
         print("ML model loaded successfully!")
         print(f"Model layers: {len(_model.layers)}")
@@ -60,6 +71,12 @@ CLASS_NAMES = ['akiec', 'bcc', 'bkl', 'df', 'mel', 'nv', 'scc', 'vasc']
 def preprocess_image(image_path, target_size=(300, 300)):
     """Preprocess image for EfficientNetB4 - OPTIMIZED"""
     try:
+        if tf is None:
+            raise RuntimeError("TensorFlow not available. Cannot preprocess image.")
+        
+        from tensorflow.keras.preprocessing import image
+        from tensorflow.keras.applications.efficientnet import preprocess_input
+        
         img = image.load_img(image_path, target_size=target_size)
         img_array = image.img_to_array(img)
         img_array = np.expand_dims(img_array, axis=0)
