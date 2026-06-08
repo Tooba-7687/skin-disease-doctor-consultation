@@ -1,6 +1,16 @@
 from pathlib import Path
 import os
-from decouple import config
+
+# Try to import decouple for production, use defaults for local dev
+try:
+    from decouple import config
+except ImportError:
+    def config(key, default=None, cast=None):
+        """Fallback config function when decouple is not available"""
+        value = os.environ.get(key, default)
+        if cast and value:
+            return cast(value)
+        return value
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -9,9 +19,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-skin-disease-detection-fyp-2024-tooba-nadeem')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=False, cast=bool)
+DEBUG = config('DEBUG', default=True, cast=lambda v: v.lower() in ('true', '1', 'yes') if isinstance(v, str) else v)
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=lambda v: [s.strip() for s in v.split(',')])
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,*', cast=lambda v: [s.strip() for s in v.split(',')])
 
 # Application definition
 INSTALLED_APPS = [
