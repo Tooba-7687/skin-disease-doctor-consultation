@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Detection Result - DermAI{% endblock %}
+
+{% block content %}
+
+<section class="page-intro">
+    <div class="container">
+        <div class="intro-panel">
+            <div class="intro-icon">
+                <i class="fas fa-clipboard-check"></i>
+            </div>
+            <div>
+                <span class="intro-kicker">AI Analysis Complete</span>
+                <h1>Detection Result</h1>
+                <p>
+                    Review the AI prediction, confidence level, care guidance,
+                    and optional Grad-CAM visualization.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-5">
+                <div class="card app-panel p-4 mb-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-image text-primary me-2"></i>
+                        Uploaded Image
+                    </h5>
+                    {% if prediction.image %}
+                    <img src="{{ prediction.image.url }}"
+                         class="image-preview w-100"
+                         alt="Uploaded skin image">
+                    {% else %}
+                    <p class="text-muted mb-0">No image available.</p>
+                    {% endif %}
+                </div>
+
+                {% if prediction.gradcam_image %}
+                <div class="card app-panel p-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-eye text-primary me-2"></i>
+                        AI Visualization
+                    </h5>
+                    <img src="{{ prediction.gradcam_image.url }}"
+                         class="gradcam-image w-100"
+                         alt="Grad-CAM visualization">
+                    <p class="text-muted mt-3 mb-0">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Highlighted areas show where the model focused.
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="col-lg-7">
+                <div class="card app-panel p-4 mb-4">
+                    <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+                        <div>
+                            <h6 class="text-muted mb-1">Detected Condition</h6>
+                            <h2 class="fw-bold text-primary mb-0">
+                                {{ prediction.disease_name }}
+                            </h2>
+                        </div>
+                        <span class="badge bg-{{ severity_color }} severity-badge">
+                            <i class="fas fa-shield-alt me-1"></i>
+                            {{ prediction.severity }} Risk
+                        </span>
+                    </div>
+                </div>
+
+                <div class="card app-panel p-4 mb-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-percentage text-primary me-2"></i>
+                        Confidence Score
+                    </h5>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="fw-bold">{{ prediction.disease_name }}</span>
+                        <span class="fw-bold text-primary">
+                            {{ prediction.confidence }}%
+                        </span>
+                    </div>
+                    <div class="confidence-bar">
+                        <div class="confidence-fill"
+                             data-width="{{ prediction.confidence }}"
+                             style="width: 0;"></div>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="card app-panel p-4 h-100">
+                            <h5 class="fw-bold mb-3">
+                                <i class="fas fa-info-circle text-primary me-2"></i>
+                                About This Condition
+                            </h5>
+                            <p class="mb-0">{{ prediction.description }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card app-panel p-4 h-100">
+                            <h5 class="fw-bold mb-3">
+                                <i class="fas fa-heartbeat text-success me-2"></i>
+                                Care Suggestions
+                            </h5>
+                            <p class="mb-0">{{ prediction.care_suggestion }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-warning mt-4" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Disclaimer:</strong>
+                    This is not a medical diagnosis. Please consult a qualified
+                    dermatologist for proper treatment.
+                </div>
+
+                <div class="row g-2 mt-2">
+                    <div class="col-md-4">
+                        <a href="{% url 'upload' %}" class="btn btn-primary w-100">
+                            <i class="fas fa-upload me-2"></i>
+                            New Analysis
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{% url 'download_result' prediction.id %}"
+                           class="btn btn-success w-100">
+                            <i class="fas fa-download me-2"></i>
+                            Download
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        {% if active_consultation %}
+                        <a href="{% url 'consultation_detail' active_consultation.id %}"
+                           class="btn btn-outline-primary w-100">
+                            <i class="fas fa-comments me-2"></i>
+                            Consultation
+                        </a>
+                        {% else %}
+                        <a href="{% url 'browse_doctors' %}"
+                           class="btn btn-outline-primary w-100">
+                            <i class="fas fa-user-md me-2"></i>
+                            Find Doctor
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

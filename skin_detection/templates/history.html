@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Prediction History - DermAI{% endblock %}
+
+{% block content %}
+
+<section class="page-intro">
+    <div class="container">
+        <div class="intro-panel">
+            <div class="intro-icon">
+                <i class="fas fa-history"></i>
+            </div>
+            <div>
+                <span class="intro-kicker">Patient Records</span>
+                <h1>Prediction History</h1>
+                <p>Review previous AI analyses, reports, and uploaded images.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        {% if predictions %}
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
+                <div class="card stat-card h-100">
+                    <div class="stat-number">{{ predictions.count }}</div>
+                    <div class="stat-label">Total Predictions</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card stat-card h-100">
+                    <div class="stat-number text-success">
+                        {{ predictions.count }}
+                    </div>
+                    <div class="stat-label">Images Analyzed</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card stat-card h-100 justify-content-center">
+                    <a href="{% url 'upload' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>
+                        New Analysis
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="card app-panel history-table">
+            <div class="table-responsive">
+                <table class="table mb-0 align-middle">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Image</th>
+                            <th>Disease</th>
+                            <th>Confidence</th>
+                            <th>Severity</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pred in predictions %}
+                        <tr>
+                            <td>{{ pred.id }}</td>
+                            <td>
+                                {% if pred.image %}
+                                <img src="{{ pred.image.url }}"
+                                     class="history-thumb"
+                                     alt="Skin prediction thumbnail">
+                                {% else %}
+                                <span class="text-muted">No image</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <strong>{{ pred.disease_name }}</strong>
+                                <br>
+                                <small class="text-muted">
+                                    {{ pred.disease_code }}
+                                </small>
+                            </td>
+                            <td>
+                                <span class="badge bg-primary">
+                                    {{ pred.confidence }}%
+                                </span>
+                            </td>
+                            <td>
+                                {% if pred.severity == 'Low' %}
+                                <span class="badge bg-success">{{ pred.severity }}</span>
+                                {% elif pred.severity == 'Moderate' %}
+                                <span class="badge bg-warning text-dark">{{ pred.severity }}</span>
+                                {% else %}
+                                <span class="badge bg-danger">{{ pred.severity }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <small>
+                                    {{ pred.created_at|date:"d M Y" }}
+                                    <br>
+                                    {{ pred.created_at|date:"h:i A" }}
+                                </small>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <a href="{% url 'result' pred.id %}"
+                                       class="btn btn-sm btn-primary"
+                                       title="View result">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'download_result' pred.id %}"
+                                       class="btn btn-sm btn-success"
+                                       title="Download report">
+                                        <i class="fas fa-download"></i>
+                                    </a>
+                                    <a href="{% url 'delete_prediction' pred.id %}"
+                                       class="btn btn-sm btn-danger"
+                                       title="Delete record"
+                                       onclick="return confirm('Delete this record?')">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-history"></i>
+            <h3>No Predictions Yet</h3>
+            <p>Upload a skin image to get your first AI analysis.</p>
+            <a href="{% url 'upload' %}" class="btn btn-primary">
+                <i class="fas fa-upload me-2"></i>
+                Upload Image Now
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+{% endblock %}
