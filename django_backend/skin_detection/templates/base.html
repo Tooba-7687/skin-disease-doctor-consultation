@@ -17,54 +17,400 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Custom CSS -->
-    <link href="{% static 'css/style.css' %}" rel="stylesheet">
-    
+    <link href="{% static 'css/style.css' %}?v=intro-refresh-20260531" rel="stylesheet">
+
     <!-- Doctor Side CSS (conditional) -->
     {% if request.user|is_doctor or 'doctor' in request.resolver_match.url_name %}
-    <link href="{% static 'css/doctor_style.css' %}" rel="stylesheet">
+    <link href="{% static 'css/doctor_style.css' %}?v=intro-refresh-20260531" rel="stylesheet">
     {% endif %}
 
-    <!-- Global Font Size Increase -->
     <style>
-        :root {
-            font-size: 16px;
+        .hero-section,
+        .page-hero,
+        .hero-header,
+        .doctor-dashboard-banner {
+            background: linear-gradient(135deg, #0f5fb8 0%, #1769aa 48%, #2f8ed8 100%) !important;
+            color: #ffffff !important;
+            min-height: 410px !important;
+            overflow: hidden !important;
+            padding: 4.25rem 0 !important;
+            position: relative !important;
         }
-        
-        body {
-            font-size: 1.03rem;
+
+        .hero-section {
+            min-height: 520px !important;
+            padding: 5.25rem 0 !important;
+        }
+
+        .doctor-dashboard-banner {
+            min-height: 370px !important;
+            padding: 3.25rem 2.75rem !important;
+        }
+
+        .hero-section::before,
+        .page-hero::before,
+        .hero-header::before,
+        .doctor-dashboard-banner::before {
+            background:
+                radial-gradient(circle at 16% 24%, rgba(255,255,255,0.16), transparent 28%),
+                radial-gradient(circle at 84% 34%, rgba(255,255,255,0.12), transparent 30%);
+            content: "" !important;
+            display: block !important;
+            inset: 0 !important;
+            pointer-events: none !important;
+            position: absolute !important;
+        }
+
+        .hero-section .container,
+        .page-hero .container,
+        .hero-header .container,
+        .doctor-dashboard-banner > .row {
+            position: relative !important;
+            z-index: 2 !important;
+        }
+
+        .hero-title,
+        .page-hero h1,
+        .hero-header h1,
+        .doctor-dashboard-banner h1 {
+            color: #ffffff !important;
+            font-size: clamp(2.8rem, 6vw, 4.7rem) !important;
+            font-weight: 800 !important;
+            letter-spacing: 0 !important;
+            line-height: 1.05 !important;
+            max-width: 800px !important;
+        }
+
+        .hero-subtitle,
+        .page-hero p,
+        .hero-header p,
+        .doctor-banner-copy {
+            color: rgba(255,255,255,0.90) !important;
+            font-size: 1.13rem !important;
+            font-weight: 500 !important;
+            line-height: 1.75 !important;
+            max-width: 740px !important;
+        }
+
+        .hero-visual,
+        .banner-microscope,
+        .doctor-banner-visual {
+            background: rgba(255,255,255,0.16) !important;
+            border: 1px solid rgba(255,255,255,0.28) !important;
+            border-radius: 8px !important;
+            box-shadow: 0 28px 78px rgba(2,16,32,0.24) !important;
+            color: #ffffff !important;
+            margin-left: auto !important;
+            max-width: 460px !important;
+            min-height: 270px !important;
+            padding: 1.4rem !important;
+        }
+
+        .hero-scan-card,
+        .banner-microscope-lens,
+        .doctor-microscope-orbit {
+            align-items: center !important;
+            background: rgba(255,255,255,0.96) !important;
+            border-radius: 8px !important;
+            color: #102033 !important;
+            display: flex !important;
+            justify-content: center !important;
+            min-height: 145px !important;
+            padding: 1.4rem !important;
+        }
+
+        .hero-scan-card {
+            gap: 1.2rem !important;
+            justify-content: flex-start !important;
+        }
+
+        .hero-scan-card i,
+        .banner-microscope-lens i,
+        .doctor-microscope-orbit i {
+            color: #0f9f8f !important;
+            display: inline-block !important;
+            font-size: 4.75rem !important;
+            line-height: 1 !important;
+        }
+
+        .hero-scan-card span,
+        .banner-microscope-copy span {
+            color: #657286 !important;
+            display: block !important;
+            font-size: 0.82rem !important;
+            font-weight: 800 !important;
+            text-transform: uppercase !important;
+        }
+
+        .hero-scan-card strong,
+        .banner-microscope-copy strong {
+            color: #102033 !important;
+            display: block !important;
+            font-size: 1.35rem !important;
+            line-height: 1.25 !important;
+        }
+
+        .hero-signal-row,
+        .doctor-banner-metrics {
+            display: grid !important;
+            gap: 0.75rem !important;
+            grid-template-columns: 1fr 1fr !important;
+            margin: 1rem 0 !important;
+        }
+
+        .doctor-banner-metrics {
+            grid-template-columns: 1fr !important;
+        }
+
+        .hero-signal-row span,
+        .doctor-banner-metrics span {
+            background: rgba(255,255,255,0.16) !important;
+            border: 1px solid rgba(255,255,255,0.20) !important;
+            border-radius: 8px !important;
+            color: #ffffff !important;
+            font-weight: 700 !important;
+            padding: 0.9rem !important;
+        }
+
+        .hero-waveform {
+            align-items: end !important;
+            background: rgba(16,32,51,0.22) !important;
+            border-radius: 8px !important;
+            display: flex !important;
+            gap: 0.55rem !important;
+            height: 124px !important;
+            justify-content: center !important;
+            padding: 1rem !important;
+        }
+
+        .hero-waveform span {
+            background: linear-gradient(180deg, #ffffff, #7de5d9) !important;
+            border-radius: 8px 8px 0 0 !important;
+            display: block !important;
+            width: 28px !important;
+        }
+
+        .hero-waveform span:nth-child(1) { height: 42% !important; }
+        .hero-waveform span:nth-child(2) { height: 74% !important; }
+        .hero-waveform span:nth-child(3) { height: 54% !important; }
+        .hero-waveform span:nth-child(4) { height: 88% !important; }
+        .hero-waveform span:nth-child(5) { height: 48% !important; }
+
+        .page-intro {
+            background: linear-gradient(180deg, rgba(232,243,251,0.85), rgba(246,248,251,0));
+            padding: 2rem 0 0;
+        }
+
+        .intro-panel {
+            align-items: center;
+            background: #ffffff;
+            border: 1px solid #d9e2ec;
+            border-left: 5px solid #1769aa;
+            border-radius: 8px;
+            box-shadow: 0 10px 28px rgba(19,34,56,0.08);
+            display: flex;
+            gap: 1rem;
+            padding: 1.25rem 1.4rem;
+        }
+
+        .intro-icon {
+            align-items: center;
+            background: #e8f3fb;
+            border-radius: 8px;
+            color: #1769aa;
+            display: flex;
+            flex: 0 0 58px;
+            height: 58px;
+            justify-content: center;
+            width: 58px;
+        }
+
+        .intro-icon i {
+            font-size: 1.75rem;
+        }
+
+        .intro-kicker {
+            color: #657286;
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 800;
+            margin-bottom: 0.2rem;
+            text-transform: uppercase;
+        }
+
+        .intro-panel h1 {
+            color: #132238;
+            font-size: clamp(1.45rem, 3vw, 2rem);
+            font-weight: 800;
+            line-height: 1.15;
+            margin: 0 0 0.25rem;
+        }
+
+        .intro-panel p {
+            color: #657286;
+            font-size: 0.98rem;
             line-height: 1.55;
+            margin: 0;
         }
-        
-        h1 { font-size: 2rem; }
-        h2 { font-size: 1.75rem; }
-        h3 { font-size: 1.55rem; }
-        h4 { font-size: 1.4rem; }
-        h5 { font-size: 1.2rem; }
-        h6 { font-size: 1.1rem; }
-        
-        p { font-size: 1.03rem; }
-        small { font-size: 0.95rem; }
-        
-        .btn { font-size: 1.01rem; padding: 0.7rem 1rem; }
-        .card-body { font-size: 1.01rem; }
-        .card-header { font-size: 1.15rem; }
-        
-        .navbar-brand { font-size: 1.35rem; }
-        .navbar-nav { font-size: 1.01rem; }
-        
-        .form-control, .form-select {
-            font-size: 1.01rem;
-            padding: 0.7rem 0.9rem;
+
+        [data-theme="dark"] .page-intro {
+            background: linear-gradient(180deg, rgba(20,43,61,0.45), rgba(13,20,32,0));
         }
-        
-        label {
-            font-size: 1.01rem;
-            font-weight: 500;
+
+        [data-theme="dark"] .intro-panel {
+            background: #151f2d;
+            border-color: #263649;
+            border-left-color: #73bdf3;
         }
-        
-        .badge { font-size: 0.95rem; }
-        
-        td, th { font-size: 1.01rem; }
+
+        [data-theme="dark"] .intro-icon {
+            background: #142b3d;
+            color: #73bdf3;
+        }
+
+        [data-theme="dark"] .intro-panel h1 {
+            color: #edf4fb;
+        }
+
+        [data-theme="dark"] .intro-kicker,
+        [data-theme="dark"] .intro-panel p {
+            color: #a8b6c7;
+        }
+
+        .page-hero.compact-page-hero {
+            min-height: 280px !important;
+            padding: 2.8rem 0 !important;
+        }
+
+        .page-hero.compact-page-hero h1 {
+            font-size: clamp(2rem, 4vw, 2.8rem) !important;
+            margin-bottom: 0.65rem !important;
+        }
+
+        .page-hero.compact-page-hero p {
+            font-size: 1rem !important;
+            line-height: 1.6 !important;
+            max-width: 620px !important;
+        }
+
+        .page-hero.compact-page-hero::after {
+            font-size: 4rem !important;
+            height: 130px !important;
+            right: max(7vw, 3rem) !important;
+            width: 210px !important;
+        }
+
+        .compact-page-hero .banner-microscope {
+            max-width: 320px !important;
+            min-height: 190px !important;
+            padding: 1rem !important;
+        }
+
+        .compact-page-hero .banner-microscope-lens {
+            min-height: 98px !important;
+            padding: 0.9rem !important;
+        }
+
+        .compact-page-hero .banner-microscope-lens i {
+            font-size: 3.6rem !important;
+        }
+
+        .compact-page-hero .banner-microscope-copy {
+            padding: 0.75rem 0 0.6rem !important;
+        }
+
+        .compact-page-hero .banner-microscope-copy strong {
+            font-size: 0.95rem !important;
+        }
+
+        .compact-page-hero .banner-scan-lines span {
+            height: 6px !important;
+        }
+
+        .hero-header.auth-hero {
+            min-height: 310px !important;
+            padding: 3.5rem 0 !important;
+        }
+
+        .hero-header.auth-hero h1 {
+            align-items: center !important;
+            display: flex !important;
+            font-size: clamp(2.2rem, 4vw, 3.1rem) !important;
+            gap: 0.8rem !important;
+            margin-bottom: 0.8rem !important;
+        }
+
+        .hero-header.auth-hero h1 i {
+            font-size: 0.9em !important;
+        }
+
+        .hero-header.auth-hero p {
+            font-size: 1.05rem !important;
+        }
+
+        .hero-header.auth-hero::after {
+            background: rgba(255,255,255,0.14) !important;
+            border: 1px solid rgba(255,255,255,0.24) !important;
+            border-radius: 8px !important;
+            box-shadow: 0 18px 52px rgba(2,16,32,0.18) !important;
+            content: "\f610" !important;
+            display: flex !important;
+            font-family: "Font Awesome 6 Free" !important;
+            font-size: 5.2rem !important;
+            font-weight: 900 !important;
+            height: 170px !important;
+            opacity: 0.86 !important;
+            right: max(8vw, 4rem) !important;
+            width: 240px !important;
+        }
+
+        @media (max-width: 991px) {
+            .hero-section,
+            .page-hero,
+            .hero-header,
+            .doctor-dashboard-banner {
+                min-height: auto !important;
+                padding: 4rem 0 !important;
+            }
+
+            .doctor-dashboard-banner {
+                padding: 2rem !important;
+            }
+
+            .hero-visual,
+            .banner-microscope,
+            .doctor-banner-visual {
+                margin: 0 auto !important;
+                max-width: 100% !important;
+            }
+
+            .hero-title,
+            .page-hero h1,
+            .hero-header h1,
+            .doctor-dashboard-banner h1 {
+                font-size: 2.55rem !important;
+            }
+
+            .hero-signal-row {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-header.auth-hero h1 {
+                justify-content: center !important;
+            }
+
+            .hero-header.auth-hero::after {
+                display: none !important;
+            }
+
+            .page-hero.compact-page-hero::after {
+                display: none !important;
+            }
+
+            .intro-panel {
+                align-items: flex-start;
+            }
+        }
     </style>
 
     {% block extra_css %}{% endblock %}
@@ -84,7 +430,8 @@
         <!-- Toggler for mobile -->
         <button class="navbar-toggler" type="button"
                 data-bs-toggle="collapse"
-                data-bs-target="#navbarNav">
+                data-bs-target="#navbarNav"
+                aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
 
@@ -294,7 +641,7 @@
 
         <div class="text-center pb-3">
             <p class="mb-0">
-                © 2026 DermAI — Skin Disease Detection System |
+                &copy; 2026 DermAI - Skin Disease Detection System |
                 Developed by <strong>Tooba Nadeem</strong> |
                 Session 2022-2026
             </p>

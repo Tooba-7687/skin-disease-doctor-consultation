@@ -40,19 +40,32 @@
                             {% endfor %}
                         {% endif %}
 
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger" style="border-radius: 10px;">
+                                <strong>Error:</strong>
+                                {% for error in form.non_field_errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
                         <!-- Rating Section -->
                         <div class="mb-5">
                             <label class="form-label" style="font-weight: 600; font-size: 1.1rem; color: #2c3e50;">
-                                How would you rate your experience? <span class="text-danger">*</span>
+                                {{ form.rating.label }} <span class="text-danger">*</span>
                             </label>
-                            <div class="rating-group d-flex justify-content-center gap-3 mt-3 p-4" style="background-color: #f8f9fa; border-radius: 10px; font-size: 3rem;">
+                            <div class="rating-group mt-3 p-4" style="background-color: #f8f9fa; border-radius: 10px; display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
                                 {{ form.rating }}
                             </div>
-                            {% if form.rating.errors %}
-                                <div class="alert alert-danger small mt-3" style="border-radius: 8px;">
-                                    <i class="fas fa-exclamation-circle me-2"></i>{{ form.rating.errors }}
-                                </div>
-                            {% endif %}
+                            <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;">
+                                {% if form.rating.errors %}
+                                    {% for error in form.rating.errors %}
+                                        <div class="alert alert-danger small mt-2" style="border-radius: 8px; width: 100%;">
+                                            <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
                         </div>
 
                         <!-- Review Text Section -->
@@ -110,30 +123,43 @@
         box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
     }
 
-    /* Custom rating radio styles - Enhanced */
-    .rating-group input[type="radio"] {
-        display: none;
+    /* Rating field styles */
+    #id_rating {
+        display: flex !important;
+        justify-content: center;
+        gap: 0.5rem !important;
+        flex-wrap: wrap;
+        align-items: center;
     }
 
-    .rating-group label {
+    #id_rating > * {
+        margin: 0 !important;
+    }
+
+    #id_rating input[type="radio"] {
+        margin: 0 0.5rem 0 0 !important;
+    }
+
+    #id_rating label {
         cursor: pointer;
         color: #bdc3c7;
         transition: all 0.3s ease;
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        margin: 0 !important;
+        font-size: 2.5rem;
+        padding: 0.5rem !important;
+        display: inline-block;
+        line-height: 1;
     }
 
-    .rating-group label:hover {
+    #id_rating label:hover {
         color: #ffc107;
         transform: scale(1.2);
     }
 
-    .rating-group input[type="radio"]:checked ~ label {
+    #id_rating input[type="radio"]:checked + label {
         color: #ffc107;
         transform: scale(1.1);
-    }
-
-    .rating-group input[type="radio"]:checked ~ label ~ label {
-        color: #bdc3c7;
     }
 
     /* Button hover effects */

@@ -25,7 +25,29 @@ def get_model():
     global _model
     if _model is None:
         print("Loading ML model...")
-        _model = load_model(settings.MODEL_PATH)
+        
+        # Dynamic check for model file - handles Git LFS restoration
+        model_path = settings.MODEL_PATH
+        new_model_path = os.path.join(
+            os.path.dirname(settings.MODEL_PATH), 
+            'efficientnet_skin.keras'
+        )
+        
+        # Check if new model exists and is valid (not a Git LFS pointer)
+        if os.path.exists(new_model_path):
+            file_size = os.path.getsize(new_model_path)
+            if file_size > 100_000_000:  # > 100MB = actual model, not pointer
+                model_path = new_model_path
+                print(f"✅ Using new EfficientNet model: {new_model_path}")
+            else:
+                print(f"⚠️ Model appears to be Git LFS pointer, size: {file_size} bytes")
+        
+        # Verify model path exists
+        if not os.path.exists(model_path):
+            raise FileNotFoundError(f"Model file not found: {model_path}")
+        
+        print(f"📦 Loading from: {model_path}")
+        _model = load_model(model_path)
         print("ML model loaded successfully!")
         print(f"Model layers: {len(_model.layers)}")
         for i, layer in enumerate(_model.layers[-5:]):
@@ -112,31 +134,36 @@ def create_placeholder(save_path):
 def generate_gradcam(image_path, save_path, use_fast_mode=True):
     """
     Generate Grad-CAM visualization - OPTIMIZED for speed
-    use_fast_mode=True: Uses only Grad-CAM (fastest)
-    use_fast_mode=False: Falls back to saliency map if needed
+    Returns: True if successful, False otherwise
     """
     try:
         print(f"\n🔍 Starting Grad-CAM generation (fast_mode={use_fast_mode})...")
+        print(f"   Input image: {image_path}")
+        print(f"   Save path: {save_path}")
         
         # Verify input image exists
         if not os.path.exists(image_path):
             print(f"❌ Input image not found: {image_path}")
             create_placeholder(save_path)
-            return save_path
+            return False
+        
+        print(f"   ✅ Input image exists")
         
         model = get_model()
         img_array = preprocess_image(image_path)
+        print(f"   ✅ Image preprocessed: shape={img_array.shape}")
         
         # Get prediction
         predictions = model.predict(img_array, verbose=0)
         pred_index = np.argmax(predictions[0])
-        print(f"🎯 Predicted: {CLASS_NAMES[pred_index]}")
+        print(f"🎯 Predicted: {CLASS_NAMES[pred_index]} (confidence: {predictions[0][pred_index]:.4f})")
 
         heatmap = None
         
         # Try Grad-CAM first (fastest & most reliable)
         print("📊 Generating Grad-CAM...")
         heatmap = _generate_grad_heatmap(model, img_array, pred_index)
+        print(f"   Grad-CAM result: {heatmap is not None}, max={np.max(heatmap) if heatmap is not None else 'N/A'}")
         
         if heatmap is None or np.max(heatmap) <= 0.01:
             if use_fast_mode:
@@ -155,7 +182,7 @@ def generate_gradcam(image_path, save_path, use_fast_mode=True):
         if heatmap is None or np.all(heatmap == 0):
             print("❌ Heatmap generation failed! Creating placeholder...")
             create_placeholder(save_path)
-            return save_path
+            return False
 
         # Normalize heatmap
         heatmap = np.maximum(heatmap, 0)
@@ -165,12 +192,13 @@ def generate_gradcam(image_path, save_path, use_fast_mode=True):
         else:
             heatmap = np.ones_like(heatmap) * 0.5
 
-        print(f"✅ Heatmap generated - Shape: {heatmap.shape}, Max: {np.max(heatmap):.4f}")
+        print(f"✅ Heatmap normalized - Shape: {heatmap.shape}, Max: {np.max(heatmap):.4f}")
 
         # Load and resize original image
         orig_pil = Image.open(image_path).convert('RGB')
         orig_pil = orig_pil.resize((300, 300))
         orig_arr = np.array(orig_pil)
+        print(f"   ✅ Original image loaded and resized: {orig_arr.shape}")
 
         # Resize heatmap to image size
         heatmap_resized = cv2.resize(heatmap.astype(np.float32), (300, 300))
@@ -179,6 +207,7 @@ def generate_gradcam(image_path, save_path, use_fast_mode=True):
         heatmap_uint8 = np.uint8(255 * heatmap_resized)
         heatmap_colored = cv2.applyColorMap(heatmap_uint8, cv2.COLORMAP_JET)
         heatmap_colored = cv2.cvtColor(heatmap_colored, cv2.COLOR_BGR2RGB)
+        print(f"   ✅ Colored heatmap created: {heatmap_colored.shape}")
 
         # Overlay on original image
         superimposed = cv2.addWeighted(
@@ -186,25 +215,41 @@ def generate_gradcam(image_path, save_path, use_fast_mode=True):
             heatmap_colored.astype(np.uint8), 0.4,
             0
         )
+        print(f"   ✅ Overlay created: {superimposed.shape}")
 
-        # Save with compression
+        # Ensure directory exists
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
-        Image.fromarray(superimposed).save(save_path, quality=85, optimize=True)
+        print(f"   ✅ Directory created: {os.path.dirname(save_path)}")
         
-        # Verify file was saved
+        # Save with compression
+        Image.fromarray(superimposed).save(save_path, quality=90, optimize=True)
+        print(f"   ✅ Image saved to disk")
+        
+        # Verify file was saved and has content
         if os.path.exists(save_path):
             file_size = os.path.getsize(save_path)
-            print(f"✅ Grad-CAM saved: {save_path} ({file_size} bytes)")
-            return save_path
+            print(f"   File size: {file_size} bytes")
+            if file_size > 1000:  # At least 1KB
+                print(f"✅ Grad-CAM saved successfully: {save_path} ({file_size} bytes)")
+                return True
+            else:
+                print(f"❌ Grad-CAM file too small: {file_size} bytes")
+                create_placeholder(save_path)
+                return False
         else:
             print(f"❌ File not saved: {save_path}")
             create_placeholder(save_path)
-            return save_path
+            return False
 
     except Exception as e:
         print(f"❌ Grad-CAM error: {str(e)}")
-        create_placeholder(save_path)
-        return save_path
+        import traceback
+        traceback.print_exc()
+        try:
+            create_placeholder(save_path)
+        except:
+            pass
+        return False
 
 
 def _generate_simple_heatmap(img_array):
@@ -270,21 +315,27 @@ def _generate_grad_heatmap(model, img_array, pred_index):
         conv_outputs_np = conv_outputs.numpy()[0]
 
         # Weight conv outputs
-        weighted_output = np.zeros_like(conv_outputs_np[:, :, 0])
+        weighted_output = np.zeros_like(conv_outputs_np[:, :, 0], dtype=np.float32)
         for i in range(min(len(pooled_grads), conv_outputs_np.shape[-1])):
             weighted_output += pooled_grads[i] * conv_outputs_np[:, :, i]
 
-        # Apply ReLU
+        # Apply ReLU and ensure valid heatmap
         heatmap = np.maximum(weighted_output, 0)
+        heatmap = heatmap.astype(np.float32)
         
-        if np.max(heatmap) > 0:
+        if np.max(heatmap) > 0.001:  # Ensure significant activation
             heatmap = heatmap / np.max(heatmap)
+        else:
+            print(f"   ⚠️ Heatmap activation too low")
+            return None
         
-        print(f"   ✅ Grad-CAM successful!")
+        print(f"   ✅ Grad-CAM successful! Max: {np.max(heatmap):.4f}")
         return heatmap
 
     except Exception as e:
         print(f"   ❌ Grad-CAM failed: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return None
 
 

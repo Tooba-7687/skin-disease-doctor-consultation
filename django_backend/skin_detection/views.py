@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.files.storage import default_storage
 from django.core.files import File
 from django.views.decorators.http import require_http_methods
-from django.db.models import Q
+from django.db.models import Q, Avg, Count
 from django.utils import timezone
 from .models import (
     UserProfile, DoctorProfile, DoctorEducation,
@@ -333,24 +333,30 @@ def upload(request):
                 os.makedirs(os.path.dirname(gradcam_path), exist_ok=True)
                 
                 # Generate Grad-CAM with fast mode enabled
-                generate_gradcam(image_path, gradcam_path, use_fast_mode=True)
+                success = generate_gradcam(image_path, gradcam_path, use_fast_mode=True)
                 
-                # Verify file was created
-                if os.path.exists(gradcam_path):
-                    # Save gradcam_image using relative path
-                    with open(gradcam_path, 'rb') as f:
-                        prediction.gradcam_image.save(
-                            gradcam_filename,
-                            File(f),
-                            save=True
-                        )
-                    print(f"✅ Grad-CAM file saved: {gradcam_filename}")
-                    messages.success(request, 'AI visualization generated successfully!')
+                # Verify file was created and save to model
+                if success and os.path.exists(gradcam_path):
+                    file_size = os.path.getsize(gradcam_path)
+                    if file_size > 1000:
+                        # Update model with gradcam image path (use forward slashes for Django)
+                        relative_path = f'gradcam/{gradcam_filename}'
+                        prediction.gradcam_image = relative_path
+                        prediction.save(update_fields=['gradcam_image'])
+                        print(f"✅ Grad-CAM file saved and linked: {gradcam_filename} ({file_size} bytes)")
+                        print(f"   Path: {relative_path}")
+                        print(f"   Full path: {gradcam_path}")
+                        messages.success(request, 'AI visualization generated successfully!')
+                    else:
+                        print(f"❌ Grad-CAM file too small: {file_size} bytes")
+                        messages.warning(request, 'AI visualization generation failed.')
                 else:
                     print("❌ Grad-CAM file was not created")
                     messages.warning(request, 'AI visualization could not be generated.')
             except Exception as e:
                 print(f"❌ Error generating Grad-CAM: {str(e)}")
+                import traceback
+                traceback.print_exc()
                 messages.warning(request, 'AI visualization generation failed.')
 
             # Clean up temp file
@@ -369,6 +375,18 @@ def upload(request):
 @login_required(login_url='login')
 def result(request, pk):
     prediction = get_object_or_404(Prediction, pk=pk)
+
+    # Debug gradcam image
+    print(f"\n🔍 Result View Debug:")
+    print(f"   Prediction ID: {prediction.id}")
+    print(f"   Gradcam image field: {prediction.gradcam_image}")
+    if prediction.gradcam_image:
+        print(f"   Gradcam name: {prediction.gradcam_image.name}")
+        gradcam_full_path = prediction.gradcam_image.path if hasattr(prediction.gradcam_image, 'path') else os.path.join(settings.MEDIA_ROOT, str(prediction.gradcam_image))
+        print(f"   Gradcam path: {gradcam_full_path}")
+        print(f"   File exists: {os.path.exists(gradcam_full_path)}")
+    else:
+        print(f"   ⚠️ Gradcam image is empty!")
 
     severity_colors = {
         'Low': 'success',
@@ -632,11 +650,35 @@ def doctor_dashboard(request):
     in_progress = my_consultations.filter(status='in_progress')
     completed = my_consultations.filter(status='completed')
 
+    # Get doctor's reviews and ratings
+    reviews = DoctorReview.objects.filter(
+        doctor=doctor_profile
+    ).select_related('patient').order_by('-created_at')
+    rating_summary = reviews.aggregate(
+        avg_rating=Avg('rating'),
+        total_reviews=Count('id')
+    )
+    avg_rating = rating_summary['avg_rating']
+    total_reviews = rating_summary['total_reviews']
+    rating_distribution = []
+    for rating_value in range(5, 0, -1):
+        count = reviews.filter(rating=rating_value).count()
+        percentage = round((count / total_reviews) * 100) if total_reviews else 0
+        rating_distribution.append({
+            'rating': rating_value,
+            'count': count,
+            'percentage': percentage,
+        })
+
     context = {
         'doctor_profile': doctor_profile,
         'pending_consultations': pending_consultations,
         'in_progress_consultations': in_progress,
         'completed_consultations': completed,
+        'reviews': reviews,
+        'avg_rating': avg_rating,
+        'total_reviews': total_reviews,
+        'rating_distribution': rating_distribution,
     }
     return render(request, 'doctor_dashboard.html', context)
 
@@ -773,16 +815,25 @@ def doctor_profile_view(request, doctor_id):
     if reviews.exists():
         avg_rating = sum([r.rating for r in reviews]) / len(reviews)
     
-    # Check if patient has active consultation with this doctor
+    # Check consultation status for patient
     active_consultation = None
+    has_completed_consultation = False
     if request.user.is_authenticated:
         try:
             user_profile = UserProfile.objects.get(user=request.user)
             if user_profile.role == 'patient':
+                # Check for active consultation (not cancelled)
                 active_consultation = Consultation.objects.filter(
                     patient=request.user,
                     doctor=doctor_profile.user
                 ).exclude(status='cancelled').first()
+                
+                # Check if patient has completed consultation with this doctor
+                has_completed_consultation = Consultation.objects.filter(
+                    patient=request.user,
+                    doctor=doctor_profile.user,
+                    status='completed'
+                ).exists()
         except UserProfile.DoesNotExist:
             pass
 
@@ -792,6 +843,7 @@ def doctor_profile_view(request, doctor_id):
         'avg_rating': avg_rating,
         'active_consultation': active_consultation,
         'has_consultation': active_consultation is not None,
+        'has_completed_consultation': has_completed_consultation,
     }
     return render(request, 'doctor_profile_view.html', context)
 
@@ -973,7 +1025,7 @@ For any concerns, contact your doctor immediately.
 
 @login_required(login_url='login')
 def add_doctor_review(request, doctor_id):
-    """Patient adds review for doctor"""
+    """Patient adds review for doctor - only after completed consultation"""
     try:
         user_profile = UserProfile.objects.get(user=request.user)
         if user_profile.role != 'patient':
@@ -985,20 +1037,15 @@ def add_doctor_review(request, doctor_id):
 
     doctor_profile = get_object_or_404(DoctorProfile, id=doctor_id)
 
-    # Check if patient has uploaded an image
-    has_prediction = Prediction.objects.filter(user=request.user).exists()
-    if not has_prediction:
-        messages.error(request, 'You must upload an image for diagnosis before leaving a review.')
-        return redirect('upload')
-
-    # Check if patient has consulted with this doctor
-    has_consultation = Consultation.objects.filter(
+    # Check if patient has consulted with this doctor AND consultation is completed
+    has_completed_consultation = Consultation.objects.filter(
         patient=request.user,
-        doctor=doctor_profile.user
-    ).exclude(status='cancelled').exists()
+        doctor=doctor_profile.user,
+        status='completed'
+    ).exists()
 
-    if not has_consultation:
-        messages.error(request, 'You can only review doctors you have consulted with.')
+    if not has_completed_consultation:
+        messages.error(request, 'You can only review doctors after completing a consultation with them.')
         return redirect('browse_doctors')
 
     # Check if review already exists
@@ -1044,12 +1091,12 @@ def add_consultation_review(request, consultation_id):
     # Verify consultation is completed
     if consultation.status != 'completed':
         messages.error(request, 'You can only review completed consultations.')
-        return redirect('consultation_detail', consultation_id=consultation_id)
+        return redirect('consultation_detail', pk=consultation_id)
     
     # Verify doctor exists
     if not consultation.doctor:
         messages.error(request, 'This consultation does not have a doctor assigned.')
-        return redirect('consultation_detail', consultation_id=consultation_id)
+        return redirect('consultation_detail', pk=consultation_id)
     
     # Try to get or create doctor profile
     doctor_profile, created = DoctorProfile.objects.get_or_create(user=consultation.doctor)
@@ -1062,23 +1109,70 @@ def add_consultation_review(request, consultation_id):
 
     if existing_review:
         messages.warning(request, 'You have already reviewed this doctor.')
-        return redirect('consultation_detail', consultation_id=consultation_id)
+        return redirect('consultation_detail', pk=consultation_id)
 
     if request.method == 'POST':
-        form = DoctorReviewForm(request.POST)
-        if form.is_valid():
-            review = form.save(commit=False)
-            review.doctor = doctor_profile
-            review.patient = request.user
-            review.save()
-            messages.success(request, 'Thank you for your review!')
-            return redirect('consultation_detail', consultation_id=consultation_id)
-    else:
-        form = DoctorReviewForm()
-
-    context = {
-        'form': form,
-        'doctor_profile': doctor_profile,
-        'consultation': consultation,
-    }
-    return render(request, 'doctor_review_form.html', context)
+        rating = request.POST.get('rating')
+        review_text = request.POST.get('review_text', '').strip()
+        
+        # Validate rating
+        if not rating:
+            messages.error(request, 'Please select a rating.')
+            chat_messages = ConsultationMessage.objects.filter(consultation=consultation)
+            return render(request, 'consultation_detail.html', {
+                'consultation': consultation,
+                'messages': chat_messages,
+            })
+        
+        try:
+            rating = int(rating)
+            if rating < 1 or rating > 5:
+                messages.error(request, 'Rating must be between 1 and 5.')
+                chat_messages = ConsultationMessage.objects.filter(consultation=consultation)
+                return render(request, 'consultation_detail.html', {
+                    'consultation': consultation,
+                    'messages': chat_messages,
+                })
+        except (ValueError, TypeError):
+            messages.error(request, 'Invalid rating value.')
+            chat_messages = ConsultationMessage.objects.filter(consultation=consultation)
+            return render(request, 'consultation_detail.html', {
+                'consultation': consultation,
+                'messages': chat_messages,
+            })
+        
+        # Validate review text
+        if not review_text or len(review_text) < 3:
+            messages.error(request, 'Please provide a review (at least 3 characters).')
+            chat_messages = ConsultationMessage.objects.filter(consultation=consultation)
+            return render(request, 'consultation_detail.html', {
+                'consultation': consultation,
+                'messages': chat_messages,
+            })
+        
+        # Create and save the review
+        try:
+            review = DoctorReview.objects.create(
+                doctor=doctor_profile,
+                patient=request.user,
+                rating=rating,
+                review_text=review_text
+            )
+            messages.success(request, f'Thank you for your {rating}/5 review!')
+            # Render with success context instead of immediate redirect
+            chat_messages = ConsultationMessage.objects.filter(consultation=consultation)
+            return render(request, 'consultation_detail.html', {
+                'consultation': consultation,
+                'messages': chat_messages,
+                'review_submitted': True,
+                'review': review,
+            })
+        except Exception as e:
+            messages.error(request, f'Error saving review: {str(e)}')
+            chat_messages = ConsultationMessage.objects.filter(consultation=consultation)
+            return render(request, 'consultation_detail.html', {
+                'consultation': consultation,
+                'messages': chat_messages,
+            })
+    
+    return redirect('consultation_detail', pk=consultation_id)

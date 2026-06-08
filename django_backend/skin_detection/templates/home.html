@@ -2,7 +2,7 @@
 {% load static %}
 {% load profile_filters %}
 
-{% block title %}DermAI — Skin Disease Detection System{% endblock %}
+{% block title %}DermAI - Skin Disease Detection System{% endblock %}
 
 {% block content %}
 
@@ -73,11 +73,23 @@
                     {% endif %}
                 </div>
             </div>
-            <div class="col-lg-5 text-center mt-5 mt-lg-0">
-                <i class="fas fa-microscope"
-                   style="font-size:12rem;
-                          opacity:0.3;
-                          color:white;"></i>
+            <div class="col-lg-5 mt-5 mt-lg-0">
+                <div class="hero-visual" aria-hidden="true">
+                    <div class="hero-scan-card">
+                        <i class="fas fa-microscope"></i>
+                        <div>
+                            <span>AI scan ready</span>
+                            <strong>Dermatology support</strong>
+                        </div>
+                    </div>
+                    <div class="hero-signal-row">
+                        <span><i class="fas fa-shield-alt"></i> Risk insight</span>
+                        <span><i class="fas fa-user-md"></i> Doctor consult</span>
+                    </div>
+                    <div class="hero-waveform">
+                        <span></span><span></span><span></span><span></span><span></span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -130,7 +142,9 @@
         <!-- Patient Journey -->
         <div class="row mb-5">
             <div class="col-12 mb-4">
-                <h4 class="text-center text-primary">👥 Patient Journey</h4>
+                <h4 class="text-center text-primary">
+                    <i class="fas fa-user me-2"></i>Patient Journey
+                </h4>
             </div>
             <div class="col-md-3 col-6 mb-4 text-center">
                 <div class="card p-4 h-100">
@@ -177,7 +191,9 @@
         <!-- Doctor Journey -->
         <div class="row">
             <div class="col-12 mb-4">
-                <h4 class="text-center text-success">👨‍⚕️ Doctor Journey</h4>
+                <h4 class="text-center text-success">
+                    <i class="fas fa-user-md me-2"></i>Doctor Journey
+                </h4>
             </div>
             <div class="col-md-3 col-6 mb-4 text-center">
                 <div class="card p-4 h-100">
@@ -302,11 +318,9 @@
 
             <!-- Melanoma -->
             <div class="col-lg-4 col-md-6 mb-4">
-                <div class="card disease-card h-100"
-                     style="border-left-color: #dc3545;">
+                <div class="card disease-card is-critical h-100">
                     <div class="disease-icon">
-                        <i class="fas fa-skull-crossbones"
-                           style="color: #dc3545;"></i>
+                        <i class="fas fa-skull-crossbones text-danger"></i>
                     </div>
                     <h5>Melanoma</h5>
                     <p class="text-muted small">
@@ -444,8 +458,7 @@
 </section>
 
 <!-- ========== CTA SECTION ========== -->
-<section class="py-5 text-center"
-         style="background: linear-gradient(135deg, #1a73e8, #1a2b4a);">
+<section class="py-5 text-center cta-section">
     <div class="container">
         <h2 class="text-white fw-bold mb-3">
             Ready to Check Your Skin?

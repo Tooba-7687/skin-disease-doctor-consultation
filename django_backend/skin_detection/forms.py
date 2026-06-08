@@ -349,14 +349,17 @@ class PrescriptionForm(forms.ModelForm):
 # DOCTOR REVIEW FORMS
 # ============================================
 class DoctorReviewForm(forms.ModelForm):
+    rating = forms.ChoiceField(
+        choices=[(i, f"{i}★") for i in range(1, 6)],
+        widget=forms.RadioSelect(),
+        required=True,
+        label="How would you rate your experience?"
+    )
+    
     class Meta:
         model = DoctorReview
         fields = ['rating', 'review_text']
         widgets = {
-            'rating': forms.RadioSelect(
-                choices=[(i, f"{i}★") for i in range(1, 6)],
-                attrs={'class': 'form-check-input'}
-            ),
             'review_text': forms.Textarea(attrs={
                 'class': 'form-control',
                 'placeholder': 'Share your experience with this doctor',

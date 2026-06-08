@@ -302,7 +302,15 @@ class DoctorReview(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.rating}★ Review for Dr. {self.doctor.user.first_name} by {self.patient.username}"
+        return f"{self.rating}/5 Review for Dr. {self.doctor.user.first_name} by {self.patient.username}"
+
+    def get_rating_range(self):
+        """Return range of stars for template display"""
+        return range(self.rating)
+
+    def get_empty_rating_range(self):
+        """Return remaining stars for template display"""
+        return range(5 - self.rating)
 
     class Meta:
         ordering = ['-created_at']

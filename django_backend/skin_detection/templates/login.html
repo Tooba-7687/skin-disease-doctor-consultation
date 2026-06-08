@@ -1,31 +1,9 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Login — DermAI{% endblock %}
-
-{% block extra_css %}
-<style>
-    .hero-header {
-        background : linear-gradient(135deg, #1a73e8, #1a2b4a);
-        padding    : 30px 0;
-        color      : white;
-    }
-</style>
-{% endblock %}
+{% block title %}Login - DermAI{% endblock %}
 
 {% block content %}
-
-<!-- HEADER -->
-<section class="hero-header">
-    <div class="container text-center">
-        <h1 class="fw-bold">
-            <i class="fas fa-sign-in-alt me-3"></i>Login to DermAI
-        </h1>
-        <p class="opacity-75 mt-2">
-            Login as a Patient or Doctor
-        </p>
-    </div>
-</section>
 
 <!-- MESSAGES -->
 {% if messages %}
@@ -74,8 +52,8 @@
                                 Login As
                             </label>
                             <select name="role" class="form-select form-select-lg" required>
-                                <option value="patient" selected>👥 Patient</option>
-                                <option value="doctor">👨‍⚕️ Doctor</option>
+                                <option value="patient" selected>Patient</option>
+                                <option value="doctor">Doctor</option>
                             </select>
                         </div>
 
